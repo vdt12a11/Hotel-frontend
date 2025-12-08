@@ -47,7 +47,7 @@ export default function LoginScreen({ onLogin,onSignup }) {
   } catch (error) {
 
     console.log("Signup error:", error);
-    Alert.alert("Lỗi mạng", "Không thể kết nối tới server");
+    Alert.alert("Lỗi mạng", "Không thể kết nối tới server",err);
   }
 
   };
