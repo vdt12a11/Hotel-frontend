@@ -37,6 +37,10 @@ export default function SearchScreen({ user , onSelectRoom,onNavigate }) {
         try {
             const res = await fetch("http://10.0.2.2:3000/room"); 
             const data = await res.json();
+            if (!res.ok) {
+                Alert.alert("Lỗi", data.message || "Lay phong that bai");
+                return;
+            }
             setRooms(data);
         } catch (err) {
             console.log("Error fetching rooms:", err);
