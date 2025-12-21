@@ -49,7 +49,7 @@ export default function AppNavigator() {
       console.log("Tạo booking thành công", data);
     } catch (err) 
     {
-        console.log("Lỗi lưu lịch sử:", err);
+        console.log("Lỗi booking:", err);
     }
     setCurrentScreen("success");
   };
