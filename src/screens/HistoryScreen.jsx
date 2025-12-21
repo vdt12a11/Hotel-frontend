@@ -10,6 +10,9 @@ const HistoryScreen = ({ onBack, user }) => {
     try {
       const res = await fetch(`http://10.0.2.2:3000/history/${user.userID}`);
         const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Get history failed");
+        }
         console.log(data);
         setHistory(data);
     } catch (error) {
@@ -28,6 +31,7 @@ const HistoryScreen = ({ onBack, user }) => {
       <Text>Khách: {item.formData.name}</Text>
       <Text>Ngày đặt: {item.createdAt}</Text>
       <Text>Giá: {item.room.price} VND</Text>
+      <Text>Trang Thai: {item.status}</Text>
     </View>
   );
 

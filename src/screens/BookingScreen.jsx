@@ -72,10 +72,10 @@ export default function BookingScreen({ room, searchData, onConfirm, onBack }) {
       Alert.alert("Thiếu thông tin", "Vui lòng nhập đủ số điện thoại và email vaf tên!");
       return;
     }
-    // if (!isValidEmail(email)) {
-    //   Alert.alert("Email không hợp lệ", "Vui lòng nhập đúng định dạng email");
-    //   return;
-    // }
+    if (!isValidEmail(email)) {
+      Alert.alert("Email không hợp lệ", "Vui lòng nhập đúng định dạng email");
+      return;
+    }
     // 2. Nếu ngày hợp lệ thì mới tính toán và chuyển trang
     const strCheckIn = formatDate(checkIn);
     const strCheckOut = formatDate(checkOut);
@@ -83,7 +83,6 @@ export default function BookingScreen({ room, searchData, onConfirm, onBack }) {
 
     onConfirm({
       room,
-      searchData,
       formData: { name, phone,email, checkIn: strCheckIn, checkOut: strCheckOut },
       totalPrice: nights * room.price
     });

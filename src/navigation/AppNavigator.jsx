@@ -30,37 +30,23 @@ export default function AppNavigator() {
 
   const handleConfirmBooking =async (booking) => {
     setBookingData(booking);
-    
-    // try 
-    // {
-    //   await fetch("http://10.0.2.2:3000/booking", 
-    //   {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({
-    //       ...booking,
-    //       userId: currentUser.id,      // gắn user hiện tại
-    //       date: new Date().toISOString(),
-    //     }),
-    //   });
-    // } catch (err) 
-    // {
-    //     console.log("Lỗi ddawtj phong:", err);
-    // }
     try 
     {
       console.log(booking)
-      await fetch("http://10.0.2.2:3000/booking", 
-      {
+      const res = await fetch("http://10.0.2.2:3000/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...booking, 
-          userID: currentUser.userID,      // gắn user hiện tại
+          ...booking,
+          userID: currentUser.userID,
           date: new Date().toISOString(),
         }),
       });
-      console.log("tao booking thành công");
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Booking failed");
+      }
+      console.log("Tạo booking thành công", data);
     } catch (err) 
     {
         console.log("Lỗi lưu lịch sử:", err);

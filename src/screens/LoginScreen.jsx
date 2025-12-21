@@ -25,14 +25,14 @@ export default function LoginScreen({ onLogin,onSignup }) {
 
     // 2. Tìm user chỉ dựa trên email
     //const foundUser = MOCK_USERS.find((u) => u.email === email);
-
+    console.log("truoc khi fetch");
     try {
     const res = await fetch("http://10.0.2.2:3000/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })
     });
-
+    console.log("sau khi fetch");
     const data = await res.json();
     if (!res.ok) {
       Alert.alert("Lỗi", data.message || "Đăng nhap thất bại");
@@ -47,7 +47,7 @@ export default function LoginScreen({ onLogin,onSignup }) {
   } catch (error) {
 
     console.log("Signup error:", error);
-    Alert.alert("Lỗi mạng", "Không thể kết nối tới server",err);
+    Alert.alert("Lỗi mạng", "Không thể kết nối tới server");
   }
 
   };
@@ -62,7 +62,7 @@ export default function LoginScreen({ onLogin,onSignup }) {
               <View style={styles.cameraLens} />
             </View>
           </View>
-          <Text style={styles.title}>Hotel Manager</Text>
+          <Text style={styles.title}>Hotel Managerr</Text>
           <Text style={styles.subtitle}>Sign in to your account</Text>
         </View>
 
