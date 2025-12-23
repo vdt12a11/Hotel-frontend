@@ -57,6 +57,7 @@ const AppNavigator: React.FC = () => {
   };
 
   const handleSelectRoom = (room: Room, search: { capacity: string }): void => {
+    console.log("AppNavigator handleSelectRoom called with:", room.name);
     setSelectedRoom(room);
     setSearchData(search);
     setCurrentScreen("booking");
@@ -106,11 +107,15 @@ const AppNavigator: React.FC = () => {
       )}
 
       {currentScreen === "tabs" && currentUser && (
-        <BottomTabNavigator />
+        <BottomTabNavigator 
+          onSelectRoom={handleSelectRoom} 
+          currentUser={currentUser}
+          onNavigate={(screen) => setCurrentScreen(screen as ScreenName)}
+        />
       )}
 
       {currentScreen === "search" && currentUser && (
-        <SearchScreen user={currentUser} onSelectRoom={handleSelectRoom} onNavigate={(screen) => setCurrentScreen(screen)} />
+        <SearchScreen user={currentUser} onSelectRoom={handleSelectRoom} onNavigate={(screen) => setCurrentScreen(screen as ScreenName)} />
       )}
 
       {currentScreen === "booking" && selectedRoom && (

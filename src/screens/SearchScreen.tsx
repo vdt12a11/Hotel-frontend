@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   StyleSheet
 } from "react-native";
+import { useRoute } from "@react-navigation/native";
 import AppText from "../components/AppText";
 import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
@@ -44,8 +45,13 @@ interface SearchScreenProps {
 }
 
 const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavigate }) => {
+  const route = useRoute<any>();
+  const routeOnSelectRoom = route?.params?.onSelectRoom;
+  const routeCurrentUser = route?.params?.currentUser;
+  const routeOnNavigate = route?.params?.onNavigate;
+  
   const mockUser = { userID: '1', name: 'Guest User' };
-  const currentUser = user || mockUser;
+  const currentUser = user || routeCurrentUser || mockUser;
   const [rooms, setRooms] = useState<Room[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [capacity, setCapacity] = useState<string>("");
@@ -96,6 +102,28 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
     return matchCapacity && matchName && matchPrice;
   }) : [];
 
+  // Handle room selection
+  const handleSelectRoom = (room: Room) => {
+    const callback = onSelectRoom || routeOnSelectRoom;
+    
+    console.log("handleSelectRoom called for:", room.name);
+    console.log("Callback exists:", !!callback);
+    console.log("Route OnSelectRoom:", !!routeOnSelectRoom);
+    console.log("Prop OnSelectRoom:", !!onSelectRoom);
+    
+    if (callback) {
+      console.log("Calling callback...");
+      callback(room, { capacity });
+    } else {
+      // Fallback: show alert if no callback
+      Alert.alert(
+        "Room Selected ✓",
+        `${room.name} selected for ${capacity || "any"} guest(s).\n\nPrice: $${room.price}/night`,
+        [{ text: "OK" }]
+      );
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: COLORS.screenBackGround }]}>
       <StatusBar backgroundColor={COLORS.primary} barStyle="light-content" />
@@ -115,7 +143,14 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
             />
             <AppButton
               title="View History"
-              onPress={() => onNavigate && onNavigate("history")}
+              onPress={() => {
+                const navCallback = onNavigate || routeOnNavigate;
+                if (navCallback) {
+                  navCallback("history");
+                } else {
+                  Alert.alert("Info", "Navigation not available");
+                }
+              }}
               style={styles.historyButton}
             />
           </View>
@@ -240,7 +275,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
                     </AppText>
                     <AppButton
                       title="Select"
-                      onPress={() => onSelectRoom && onSelectRoom(room, { capacity })}
+                      onPress={() => handleSelectRoom(room)}
                       style={styles.selectButton}
                     />
                   </View>
