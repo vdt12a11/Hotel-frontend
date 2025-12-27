@@ -5,8 +5,9 @@ import BookingScreen from "../screens/BookingScreen";
 import BookingSuccessScreen from "../screens/BookingSuccessScreen";
 import HistoryScreen from "../screens/HistoryScreen";
 import SignupScreen from "../screens/SignupScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 
-type ScreenName = "login" | "signup" | "search" | "booking" | "history" | "success";
+type ScreenName = "login" | "signup" | "search" | "booking" | "history" | "success" | "profile";
 
 interface User {
   userID: string;
@@ -117,6 +118,10 @@ const AppNavigator: React.FC = () => {
 
       {currentScreen === "history" && currentUser && (
         <HistoryScreen user={currentUser} onBack={() => setCurrentScreen("search")} />
+      )}
+
+      {currentScreen === "profile" && currentUser && (
+        <ProfileScreen user={currentUser} onNavigate={setCurrentScreen} />
       )}
 
       {currentScreen === "success" && bookingData && (

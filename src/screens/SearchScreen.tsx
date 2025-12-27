@@ -14,6 +14,7 @@ import {
 import AppText from "../components/AppText";
 import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
+import Footer from "../components/Footer"; 
 import { COLORS, SIZES, SPACING, SHADOWS } from "../constaints/hotelTheme";
 
 const { width } = Dimensions.get("window");
@@ -35,7 +36,7 @@ interface Room {
   capacity: number;
 }
 
-type ScreenName = "login" | "signup" | "search" | "booking" | "history" | "success";
+type ScreenName = "login" | "signup" | "search" | "booking" | "history" | "success" | "profile";
 
 interface SearchScreenProps {
   user: User;
@@ -96,169 +97,172 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: COLORS.screenBackGround }]}>
       <StatusBar backgroundColor={COLORS.primary} barStyle="light-content" />
-      <View style={[styles.header, { backgroundColor: COLORS.primary }]}>
-        <View style={styles.headerContent}>
-          <AppText variant="title" color={COLORS.white}>
-            Find Your Perfect Room
-          </AppText>
-          <AppText variant="body" color={COLORS.primaryLight} style={{ marginTop: SPACING.sm }}>
-            Welcome, {user.name}
-          </AppText>
-          <View style={styles.buttonRow}>
-            <AppButton
-              title="Reload Room"
-              onPress={fetchRooms}
-              style={styles.reloadButton}
-            />
-            <AppButton
-              title="View History"
-              onPress={() => onNavigate && onNavigate("history")}
-              style={styles.historyButton}
-            />
-          </View>
-        </View>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={[styles.searchCard, { ...SHADOWS.medium }]}>
-          <View style={styles.inputGroup}>
-            <AppInput
-              label="Room Name"
-              placeholder="Nhập tên phòng..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </View>
-
-          <View style={[styles.row, { marginTop: SPACING.md, zIndex: 100 }]}>
-            <View style={[styles.col, { marginRight: SPACING.md, zIndex: showCapacityDropdown ? 2000 : 1 }]}>
-              <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
-                Capacity
-              </AppText>
-              <TouchableOpacity
-                style={styles.dropdown}
-                onPress={() => {
-                  setShowCapacityDropdown(!showCapacityDropdown);
-                  setShowPriceDropdown(false);
-                }}
-              >
-                <AppText variant="body" color={COLORS.textDark}>
-                  {capacity || "Select capacity"}
-                </AppText>
-                <AppText variant="caption">▼</AppText>
-              </TouchableOpacity>
-              {showCapacityDropdown && (
-                <View style={[styles.dropdownList, { ...SHADOWS.medium }]}>
-                  {["none", "1", "2", "3", "4"].map((c) => (
-                    <TouchableOpacity
-                      key={c}
-                      style={styles.dropdownItem}
-                      onPress={() => {
-                        setCapacity(c);
-                        setShowCapacityDropdown(false);
-                      }}
-                    >
-                      <AppText variant="body" color={COLORS.textDark}>
-                        {c}
-                      </AppText>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            <View style={[styles.col, { zIndex: showPriceDropdown ? 2000 : 1 }]}>
-              <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
-                Price Range
-              </AppText>
-              <TouchableOpacity
-                style={styles.dropdown}
-                onPress={() => {
-                  setShowPriceDropdown(!showPriceDropdown);
-                  setShowCapacityDropdown(false);
-                }}
-              >
-                <AppText variant="body" color={COLORS.textDark}>
-                  {priceRange || "Select range"}
-                </AppText>
-                <AppText variant="caption">▼</AppText>
-              </TouchableOpacity>
-              {showPriceDropdown && (
-                <View style={[styles.dropdownList, { ...SHADOWS.medium }]}>
-                  {["none", "100-200", "200-300", "300-500", ">500"].map((r) => (
-                    <TouchableOpacity
-                      key={r}
-                      style={styles.dropdownItem}
-                      onPress={() => {
-                        setPriceRange(r);
-                        setShowPriceDropdown(false);
-                      }}
-                    >
-                      <AppText variant="body" color={COLORS.textDark}>
-                        {r}
-                      </AppText>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
+      <View style={{flex: 1}}>
+        <View style={[styles.header, { backgroundColor: COLORS.primary }]}>
+          <View style={styles.headerContent}>
+            <AppText variant="title" color={COLORS.white}>
+              Find Your Perfect Room
+            </AppText>
+            <AppText variant="body" color={COLORS.primaryLight} style={{ marginTop: SPACING.sm }}>
+              Welcome, {user.name}
+            </AppText>
+            <View style={styles.buttonRow}>
+              <AppButton
+                title="Reload Room"
+                onPress={fetchRooms}
+                style={styles.reloadButton}
+              />
+              <AppButton
+                title="View History"
+                onPress={() => onNavigate && onNavigate("history")}
+                style={styles.historyButton}
+              />
             </View>
           </View>
         </View>
 
-        <AppText variant="subtitle" color={COLORS.textDark} style={{ marginBottom: SPACING.md }}>
-          Recommended Rooms
-        </AppText>
-        {filteredRooms.length > 0 ? (
-          <View style={styles.gridContainer}>
-            {filteredRooms.map((room) => (
-              <View key={room.id ?? room.name} style={[styles.roomCard, { ...SHADOWS.light }]}>
-                <Image source={{ uri: room.image }} style={styles.roomImage} />
-                <View style={styles.roomContent}>
-                  <AppText variant="body" color={COLORS.textDark} numberOfLines={1} style={{ fontWeight: "600" }}>
-                    {room.name}
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={[styles.searchCard, { ...SHADOWS.medium }]}>
+            <View style={styles.inputGroup}>
+              <AppInput
+                label="Room Name"
+                placeholder="Nhập tên phòng..."
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+            </View>
+
+            <View style={[styles.row, { marginTop: SPACING.md, zIndex: 100 }]}>
+              <View style={[styles.col, { marginRight: SPACING.md, zIndex: showCapacityDropdown ? 2000 : 1 }]}>
+                <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
+                  Capacity
+                </AppText>
+                <TouchableOpacity
+                  style={styles.dropdown}
+                  onPress={() => {
+                    setShowCapacityDropdown(!showCapacityDropdown);
+                    setShowPriceDropdown(false);
+                  }}
+                >
+                  <AppText variant="body" color={COLORS.textDark}>
+                    {capacity || "Select capacity"}
                   </AppText>
-                  <View style={styles.roomMetaContainer}>
-                    <AppText variant="caption" color={COLORS.textLight}>
-                      📍 {room.size}
-                    </AppText>
-                    <AppText variant="caption" color={COLORS.textLight}>
-                      🛏️ {room.bed}
-                    </AppText>
-                    <AppText variant="caption" color={COLORS.textLight}>
-                      👁️ {room.view}
-                    </AppText>
+                  <AppText variant="caption">▼</AppText>
+                </TouchableOpacity>
+                {showCapacityDropdown && (
+                  <View style={[styles.dropdownList, { ...SHADOWS.medium }]}>
+                    {["none", "1", "2", "3", "4"].map((c) => (
+                      <TouchableOpacity
+                        key={c}
+                        style={styles.dropdownItem}
+                        onPress={() => {
+                          setCapacity(c);
+                          setShowCapacityDropdown(false);
+                        }}
+                      >
+                        <AppText variant="body" color={COLORS.textDark}>
+                          {c}
+                        </AppText>
+                      </TouchableOpacity>
+                    ))}
                   </View>
-                  <View style={styles.footerRow}>
-                    <AppText variant="body" color={COLORS.primary} style={{ fontWeight: "bold" }}>
-                      ${room.price}
-                      <AppText variant="caption" color={COLORS.textLight}>
-                        /night
-                      </AppText>
+                )}
+              </View>
+
+              <View style={[styles.col, { zIndex: showPriceDropdown ? 2000 : 1 }]}>
+                <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
+                  Price Range
+                </AppText>
+                <TouchableOpacity
+                  style={styles.dropdown}
+                  onPress={() => {
+                    setShowPriceDropdown(!showPriceDropdown);
+                    setShowCapacityDropdown(false);
+                  }}
+                >
+                  <AppText variant="body" color={COLORS.textDark}>
+                    {priceRange || "Select range"}
+                  </AppText>
+                  <AppText variant="caption">▼</AppText>
+                </TouchableOpacity>
+                {showPriceDropdown && (
+                  <View style={[styles.dropdownList, { ...SHADOWS.medium }]}>
+                    {["none", "100-200", "200-300", "300-500", ">500"].map((r) => (
+                      <TouchableOpacity
+                        key={r}
+                        style={styles.dropdownItem}
+                        onPress={() => {
+                          setPriceRange(r);
+                          setShowPriceDropdown(false);
+                        }}
+                      >
+                        <AppText variant="body" color={COLORS.textDark}>
+                          {r}
+                        </AppText>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
+
+          <AppText variant="subtitle" color={COLORS.textDark} style={{ marginBottom: SPACING.md }}>
+            Recommended Rooms
+          </AppText>
+          {filteredRooms.length > 0 ? (
+            <View style={styles.gridContainer}>
+              {filteredRooms.map((room) => (
+                <View key={room.id ?? room.name} style={[styles.roomCard, { ...SHADOWS.light }]}>
+                  <Image source={{ uri: room.image }} style={styles.roomImage} />
+                  <View style={styles.roomContent}>
+                    <AppText variant="body" color={COLORS.textDark} numberOfLines={1} style={{ fontWeight: "600" }}>
+                      {room.name}
                     </AppText>
-                    <AppButton
-                      title="Select"
-                      onPress={() => onSelectRoom && onSelectRoom(room, { capacity })}
-                      style={styles.selectButton}
-                    />
+                    <View style={styles.roomMetaContainer}>
+                      <AppText variant="caption" color={COLORS.textLight}>
+                        📍 {room.size}
+                      </AppText>
+                      <AppText variant="caption" color={COLORS.textLight}>
+                        🛏️ {room.bed}
+                      </AppText>
+                      <AppText variant="caption" color={COLORS.textLight}>
+                        👁️ {room.view}
+                      </AppText>
+                    </View>
+                    <View style={styles.footerRow}>
+                      <AppText variant="body" color={COLORS.primary} style={{ fontWeight: "bold" }}>
+                        ${room.price}
+                        <AppText variant="caption" color={COLORS.textLight}>
+                          /night
+                        </AppText>
+                      </AppText>
+                      <AppButton
+                        title="Select"
+                        onPress={() => onSelectRoom && onSelectRoom(room, { capacity })}
+                        style={styles.selectButton}
+                      />
+                    </View>
                   </View>
                 </View>
-              </View>
-            ))}
-          </View>
-        ) : (
-          <View style={styles.emptyContainer}>
-            <AppText variant="title" color={COLORS.textLight} style={{ marginBottom: SPACING.md }}>
-              🔍
-            </AppText>
-            <AppText variant="subtitle" color={COLORS.textDark}>
-              Phòng không tồn tại
-            </AppText>
-            <AppText variant="body" color={COLORS.textLight} style={{ marginTop: SPACING.xs }}>
-              Vui lòng thử từ khóa khác
-            </AppText>
-          </View>
-        )}
-      </ScrollView>
+              ))}
+            </View>
+          ) : (
+            <View style={styles.emptyContainer}>
+              <AppText variant="title" color={COLORS.textLight} style={{ marginBottom: SPACING.md }}>
+                🔍
+              </AppText>
+              <AppText variant="subtitle" color={COLORS.textDark}>
+                Phòng không tồn tại
+              </AppText>
+              <AppText variant="body" color={COLORS.textLight} style={{ marginTop: SPACING.xs }}>
+                Vui lòng thử từ khóa khác
+              </AppText>
+            </View>
+          )}
+        </ScrollView>
+      </View>
+      <Footer onNavigate={onNavigate} />
     </SafeAreaView>
   );
 };
