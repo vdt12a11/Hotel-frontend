@@ -9,20 +9,26 @@ import {
   Alert,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import Ionicons from '@react-native-vector-icons/ionicons';
-import { AppText, AppInput } from '../../components';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { AppText, AppInput, ScreenContainer } from '../../components';
 import { COLORS, SHADOWS, FONTS, SIZES } from '../../constaints/hotelTheme';
+import { User } from '../../types';
 
-const UserProfileScreen = () => {
+interface UserProfileScreenProps {
+  user: User | null;
+  onLogout: () => void;
+}
+
+const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ user, onLogout }) => {
   const { width, height } = useWindowDimensions();
-  
+
   // Responsive calculations based on screen width
   const responsive = useMemo(() => {
     const scale = width / 375; // Base design width (iPhone 11/12)
     const circleSize = width * 2;
     const avatarSize = Math.max(80, Math.min(120, 100 * scale));
     const headerHeight = Math.max(190, 230 * scale);
-    
+
     return {
       circleSize,
       headerHeight,
@@ -46,11 +52,11 @@ const UserProfileScreen = () => {
     };
   }, [width]);
   const initialProfile = useMemo(() => ({
-    username: 'anna_avetisyan',
+    username: user?.name || 'anna_avetisyan',
     phone: '818 123 4567',
-    email: 'info@aplusdesign.co',
+    email: user?.email || 'info@aplusdesign.co',
     password: '••••••••',
-  }), []);
+  }), [user]);
 
   const [profile, setProfile] = useState(initialProfile);
   const [savedProfile, setSavedProfile] = useState(initialProfile);
@@ -70,125 +76,136 @@ const UserProfileScreen = () => {
   }, [profile, savedProfile]);
 
   return (
-    <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
-        {/* Header Section */}
-        <View style={[styles.headerContainer, { height: responsive.headerHeight }]}>
-          <View style={[styles.circleWrapper, { 
-            width: responsive.circleSize, 
-            height: responsive.circleSize-30,
-            borderRadius: responsive.circleSize / 2,
-            top: responsive.circleTop,
-            left: -(responsive.circleSize - width) / 2,
-          }]}>
-            <LinearGradient
-              colors={[COLORS.primary, COLORS.lightBlue]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              locations={[0.6, 1]}
-              style={styles.circle}
+    <ScreenContainer withScroll={false}>
+      <View style={styles.container}>
+        <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+          {/* Header Section */}
+          <View style={[styles.headerContainer, { height: responsive.headerHeight }]}>
+            <View style={[styles.circleWrapper, {
+              width: responsive.circleSize,
+              height: responsive.circleSize - 30,
+              borderRadius: responsive.circleSize / 2,
+              top: responsive.circleTop,
+              left: -(responsive.circleSize - width) / 2,
+            }]}>
+              <LinearGradient
+                colors={[COLORS.primary, COLORS.lightBlue]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                locations={[0.6, 1]}
+                style={styles.circle}
+              />
+            </View>
+
+            <SafeAreaView style={styles.headerContent}>
+              <View style={[styles.topBar, { paddingHorizontal: responsive.topBarPaddingH, paddingTop: responsive.topBarPaddingV, marginTop: responsive.topBarMarginTop }]}>
+                <AppText style={[styles.headerTitle, { fontSize: responsive.headerTitleSize, lineHeight: responsive.headerTitleSize * 1.2 }]}>{profile.username}</AppText>
+              </View>
+
+              <View style={[styles.avatarContainer, { bottom: responsive.avatarBottom }]}>
+                <View style={[styles.avatar, {
+                  width: responsive.avatarSize,
+                  height: responsive.avatarSize,
+                  borderRadius: responsive.avatarSize / 2
+                }]}>
+                  <Ionicons name="person-outline" size={responsive.iconSize} color={COLORS.primary} />
+                </View>
+              </View>
+            </SafeAreaView>
+          </View>
+
+          {/* Form Section */}
+          <View style={[styles.formSection, { paddingHorizontal: responsive.paddingH, marginTop: responsive.formMarginTop }]}>
+            <AppInput
+              label="Username"
+              placeholder="Enter username"
+              value={profile.username}
+              onChangeText={(text) => setProfile((prev) => ({ ...prev, username: text }))}
+              containerStyle={styles.inputItem}
+            />
+            <AppInput
+              label="Phone"
+              placeholder="818 123 4567"
+              keyboardType="phone-pad"
+              value={profile.phone}
+              onChangeText={(text) => setProfile((prev) => ({ ...prev, phone: text }))}
+              containerStyle={styles.inputItem}
+            />
+            <AppInput
+              label="Email"
+              placeholder="info@aplusdesign.co"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={profile.email}
+              onChangeText={(text) => setProfile((prev) => ({ ...prev, email: text }))}
+              containerStyle={styles.inputItem}
+            />
+            <AppInput
+              label="Password"
+              placeholder="••••••••"
+              secureTextEntry
+              autoCorrect={false}
+              value={profile.password}
+              onChangeText={(text) => setProfile((prev) => ({ ...prev, password: text }))}
+              containerStyle={styles.inputItem}
             />
           </View>
 
-          <SafeAreaView style={styles.headerContent}>
-            <View style={[styles.topBar, { paddingHorizontal: responsive.topBarPaddingH, paddingTop: responsive.topBarPaddingV, marginTop: responsive.topBarMarginTop }]}>
-              <AppText style={[styles.headerTitle, { fontSize: responsive.headerTitleSize, lineHeight: responsive.headerTitleSize * 1.2 }]}>{profile.username}</AppText>
-            </View>
+          <TouchableOpacity style={[styles.btnWrapper, { marginHorizontal: responsive.btnPaddingH }]} onPress={handleSave}>
+            <LinearGradient
+              colors={[COLORS.primary, `${COLORS.primary}B3`]}
+              style={[styles.btn, { paddingVertical: responsive.btnPaddingV }]}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+            >
+              <AppText style={[styles.btnText, { fontSize: responsive.btnTextSize }]}>Save changes</AppText>
+            </LinearGradient>
+          </TouchableOpacity>
 
-            <View style={[styles.avatarContainer, { bottom: responsive.avatarBottom }]}>
-              <View style={[styles.avatar, { 
-                width: responsive.avatarSize, 
-                height: responsive.avatarSize, 
-                borderRadius: responsive.avatarSize / 2 
-              }]}>
-                <Ionicons name="person-outline" size={responsive.iconSize} color={COLORS.primary} />
-              </View>
-            </View>
-          </SafeAreaView>
-        </View>
-
-        {/* Form Section */}
-        <View style={[styles.formSection, { paddingHorizontal: responsive.paddingH, marginTop: responsive.formMarginTop }]}>
-          <AppInput
-            label="Username"
-            placeholder="Enter username"
-            value={profile.username}
-            onChangeText={(text) => setProfile((prev) => ({ ...prev, username: text }))}
-            containerStyle={styles.inputItem}
-          />
-          <AppInput
-            label="Phone"
-            placeholder="818 123 4567"
-            keyboardType="phone-pad"
-            value={profile.phone}
-            onChangeText={(text) => setProfile((prev) => ({ ...prev, phone: text }))}
-            containerStyle={styles.inputItem}
-          />
-          <AppInput
-            label="Email"
-            placeholder="info@aplusdesign.co"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={profile.email}
-            onChangeText={(text) => setProfile((prev) => ({ ...prev, email: text }))}
-            containerStyle={styles.inputItem}
-          />
-          <AppInput
-            label="Password"
-            placeholder="••••••••"
-            secureTextEntry
-            autoCorrect={false}
-            value={profile.password}
-            onChangeText={(text) => setProfile((prev) => ({ ...prev, password: text }))}
-            containerStyle={styles.inputItem}
-          />
-        </View>
-
-        <TouchableOpacity style={[styles.btnWrapper, { marginHorizontal: responsive.btnPaddingH }]} onPress={handleSave}>
-          <LinearGradient
-            colors={[COLORS.primary, `${COLORS.primary}B3`]}
-            style={[styles.btn, { paddingVertical: responsive.btnPaddingV }]}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+          {/* Logout Section */}
+          <TouchableOpacity
+            style={[styles.logoutBtn, { marginHorizontal: responsive.btnPaddingH, marginTop: 20 }]}
+            onPress={onLogout}
           >
-            <AppText style={[styles.btnText, { fontSize: responsive.btnTextSize }]}>Save changes</AppText>
-          </LinearGradient>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
+            <Ionicons name="log-out-outline" size={20} color={COLORS.danger} />
+            <AppText style={styles.logoutText}>Đăng xuất</AppText>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+    </ScreenContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: COLORS.screenBackGround, 
-    paddingBottom: SIZES.padding*3
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.screenBackGround,
+    paddingBottom: SIZES.padding * 3
   },
-  headerContainer: { 
+  headerContainer: {
     alignItems: 'center',
   },
   circleWrapper: {
     position: 'absolute',
     overflow: 'hidden',
   },
-  circle: { 
-    flex: 1 
+  circle: {
+    flex: 1
   },
-  headerContent: { 
-    width: '100%', 
+  headerContent: {
+    width: '100%',
     alignItems: 'center',
     paddingTop: 60
   },
   topBar: {
-    flexDirection: 'row', 
-    justifyContent: 'center', 
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    width: '100%', 
+    width: '100%',
     marginTop: 10
   },
-  headerTitle: { 
+  headerTitle: {
     ...FONTS.h2,
-    color: COLORS.textOnPrimary, 
+    color: COLORS.textOnPrimary,
     fontWeight: '700' as const,
     textAlign: 'center',
   },
@@ -196,10 +213,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   avatar: {
-    backgroundColor: COLORS.white, 
-    justifyContent: 'center', 
+    backgroundColor: COLORS.white,
+    justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1, 
+    borderWidth: 1,
     borderColor: COLORS.border,
     ...SHADOWS.medium,
   },
@@ -207,17 +224,34 @@ const styles = StyleSheet.create({
   inputItem: {
     width: '100%',
   },
-  btnWrapper: { 
+  btnWrapper: {
     marginVertical: 30,
   },
-  btn: { 
-    borderRadius: 30, 
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    backgroundColor: COLORS.white,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: COLORS.danger,
+    marginBottom: 30,
+  },
+  logoutText: {
+    color: COLORS.danger,
+    marginLeft: 8,
+    fontWeight: '600' as const,
+  },
+  btn: {
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  btnText: { 
+  btnText: {
     fontFamily: FONTS.body1.fontFamily,
-    color: COLORS.textOnPrimary, 
+    color: COLORS.textOnPrimary,
     fontWeight: '700' as const,
   }
 });

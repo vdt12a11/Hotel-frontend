@@ -10,11 +10,7 @@ import AppText from "../components/AppText";
 import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
 import { COLORS, SIZES, SHADOWS, FONTS, SPACING } from "../constaints/hotelTheme";
-
-interface User {
-  userID: string;
-  name: string;
-}
+import { User } from "../types";
 
 interface LoginScreenProps {
   onLogin: (user: User) => void;
@@ -33,6 +29,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignup }) => {
     }
 
     try {
+      // MOCK AUTHENTICATION: Allow admin@hotel.com / 123456 to login without server
+      if (email === "admin@hotel.com" && password === "123456") {
+        const user: User = {
+          userID: "693073ad2cb31ee8f077bfef",
+          name: "Admin User",
+          email: email,
+        };
+        onLogin(user);
+        return;
+      }
+
+      // Try real API if mock credentials don't match
       const res = await fetch("http://10.0.2.2:3000/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -49,12 +57,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignup }) => {
       const user: User = {
         userID: data.userID,
         name: data.name,
+        email: data.email,
       };
 
       onLogin(user);
     } catch (error) {
       console.log("Login error:", error);
-      Alert.alert("Lỗi mạng", "Không thể kết nối tới server");
+      Alert.alert("Lỗi mạng", "Không thể kết nối tới server. Vui lòng sử dụng tài khoản demo: admin@hotel.com / 123456");
     }
   };
 
@@ -107,7 +116,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignup }) => {
             title="Sign In"
             onPress={handleSubmit}
             fullWidth
-            
+
             style={{ marginTop: SIZES.padding }}
           />
         </View>
@@ -123,7 +132,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignup }) => {
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.demoBox, { backgroundColor: COLORS.lightGray, padding: SPACING.lg, borderWidth:1, borderColor:COLORS.lightBlue }]}>
+        <View style={[styles.demoBox, { backgroundColor: COLORS.lightGray, padding: SPACING.lg, borderWidth: 1, borderColor: COLORS.lightBlue }]}>
           <AppText variant="body" color={COLORS.textDark} style={{ fontWeight: "600", marginBottom: SPACING.xs }}>
             Demo Credentials:
           </AppText>

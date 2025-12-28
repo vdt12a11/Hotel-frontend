@@ -15,28 +15,7 @@ import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
 import { calculateNights } from "../utils/calculateNights";
 import { COLORS, SIZES, SPACING, SHADOWS } from "../constaints/hotelTheme";
-
-interface Room {
-  name: string;
-  price: number;
-  image?: string;
-  size?: string;
-  bed?: string;
-}
-
-interface BookingFormData {
-  name: string;
-  phone: string;
-  email: string;
-  checkIn: string;
-  checkOut: string;
-}
-
-interface BookingData {
-  room: Room;
-  formData: BookingFormData;
-  totalPrice: number;
-}
+import { Room, BookingFormData, BookingData } from "../types";
 
 interface BookingScreenProps {
   room: Room;
@@ -147,7 +126,7 @@ const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfi
           <AppText variant="body" color={COLORS.textDark} style={{ fontWeight: "600", marginBottom: SPACING.md }}>
             Thông tin khách hàng
           </AppText>
-          <AppInput           
+          <AppInput
             placeholder="Tên khách"
             value={name}
             onChangeText={setName}
@@ -225,7 +204,7 @@ const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfi
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: { paddingTop: SPACING.xl*2, paddingHorizontal: SIZES.padding, paddingBottom: SPACING.xxl },
+  scrollContent: { paddingTop: SPACING.xl * 2, paddingHorizontal: SIZES.padding, paddingBottom: SPACING.xxl },
   card: {
     borderRadius: SIZES.radiusLarge,
     padding: SPACING.md,
@@ -242,7 +221,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: SPACING.md,
   },
-  buttonGroup: {  },
+  buttonGroup: {},
 });
 
 export default BookingScreen;

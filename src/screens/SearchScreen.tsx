@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   StyleSheet
 } from "react-native";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 import AppText from "../components/AppText";
 import AppInput from "../components/AppInput";
 import AppButton from "../components/AppButton";
@@ -48,6 +48,7 @@ interface SearchScreenProps {
 
 const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavigate }) => {
   const route = useRoute<any>();
+  const navigation = useNavigation<any>();
   const routeOnSelectRoom = route?.params?.onSelectRoom;
   const routeCurrentUser = route?.params?.currentUser;
   const routeOnNavigate = route?.params?.onNavigate;
@@ -139,6 +140,18 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
           </AppText>
           <View style={styles.buttonRow}>
             <AppButton
+              title="Check-In"
+              onPress={() => navigation.navigate('CheckIn')}
+              style={[styles.reloadButton, { flex: 1 }]}
+            />
+            <AppButton
+              title="Check-Out"
+              onPress={() => navigation.navigate('CheckOut')}
+              style={[styles.historyButton, { flex: 1 }]}
+            />
+          </View>
+          <View style={[styles.buttonRow, { marginTop: SPACING.md }]}>
+            <AppButton
               title="Reload Room"
               onPress={fetchRooms}
               style={styles.reloadButton}
@@ -150,7 +163,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
                 if (navCallback) {
                   navCallback("history");
                 } else {
-                  Alert.alert("Info", "Navigation not available");
+                  navigation.navigate('MyBookings');
                 }
               }}
               style={styles.historyButton}
