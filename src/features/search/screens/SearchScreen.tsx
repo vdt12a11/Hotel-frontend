@@ -104,11 +104,10 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
     return matchCapacity && matchName && matchPrice;
   }) : [];
 
-  // Handle room selection: chuyển sang BookingScreen
+  // Handle room selection: chuyển sang RoomDetailScreen
   const handleSelectRoom = (room: Room) => {
-    navigation.navigate('Booking', {
+    navigation.navigate('RoomDetail', {
       room,
-      searchData: { capacity },
     });
   };
 
