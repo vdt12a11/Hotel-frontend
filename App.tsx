@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RootNavigator from './src/navigation/RootNavigator';
-import { User } from './src/types';
+import { User } from './src/shared/types/index';
 
 const App = () => {
   // Quản lý trạng thái đăng nhập ở cấp cao nhất

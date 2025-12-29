@@ -10,9 +10,9 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { AppText, AppInput, ScreenContainer } from '../../components';
-import { COLORS, SHADOWS, FONTS, SIZES } from '../../constaints/hotelTheme';
-import { User } from '../../types';
+import { AppText, AppInput, ScreenContainer } from '../../../components';
+import { COLORS, SHADOWS, FONTS, SIZES } from '../../../constaints/hotelTheme';
+import { User } from '../../../types';
 
 interface UserProfileScreenProps {
   user: User | null;

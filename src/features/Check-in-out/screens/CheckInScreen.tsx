@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { AppText, AppInput, AppButton, DateRangePicker, RoomCard, ScreenContainer, CustomModal } from '../components';
-import { COLORS, SPACING, SHADOWS, SIZES } from '../constaints/hotelTheme';
-import { Room } from '../types';
+import { AppText, AppInput, AppButton, DateRangePicker, RoomCard, ScreenContainer, CustomModal } from '../../../components';
+import { COLORS, SPACING, SHADOWS, SIZES } from '../../../constaints/hotelTheme';
+import { Room } from '../../../types';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 // Mock data - Day 2 strategy: "Mock It Till You Make It"
@@ -85,15 +85,14 @@ const CheckInScreen: React.FC = () => {
 
     return (
         <ScreenContainer withScroll={true}>
-            <View style={[styles.container, { paddingTop: 40 }]}> {/* Thêm paddingTop để tránh dính sát phần trên */}
+            <View style={[styles.container, { paddingTop: 40 }]}> 
                 <TouchableOpacity
                     onPress={() => navigation.goBack()}
                     hitSlop={{top:10, left:10, right:10, bottom:10}}
                     style={styles.backCircle}
                 >
                     <Icon name="arrow-back-outline" size={28} color={COLORS.primary} />
-                </TouchableOpacity>
-                {/* Header */}
+                </TouchableOpacity>             
                 <View style={styles.header}>
                     <Icon name="log-in-outline" size={40} color={COLORS.primary} />
                     <AppText variant="title" style={styles.title}>Check-in Khách Sạn</AppText>
@@ -102,7 +101,6 @@ const CheckInScreen: React.FC = () => {
                     </AppText>
                 </View>
 
-                {/* Booking ID Input */}
                 <View style={styles.section}>
                     <AppInput
                         label="Mã Booking"
@@ -117,7 +115,6 @@ const CheckInScreen: React.FC = () => {
                     />
                 </View>
 
-                {/* Selected Room Display */}
                 {selectedRoom && (
                     <>
                         <View style={styles.section}>
@@ -128,7 +125,6 @@ const CheckInScreen: React.FC = () => {
                             />
                         </View>
 
-                        {/* Date Range Picker */}
                         <View style={styles.section}>
                             <AppText variant="subtitle" style={styles.sectionTitle}>Thời gian lưu trú</AppText>
                             <DateRangePicker
@@ -139,7 +135,6 @@ const CheckInScreen: React.FC = () => {
                             />
                         </View>
 
-                        {/* Guest Information */}
                         <View style={styles.section}>
                             <AppText variant="subtitle" style={styles.sectionTitle}>Thông tin khách</AppText>
                             <AppInput
@@ -150,7 +145,6 @@ const CheckInScreen: React.FC = () => {
                             />
                         </View>
 
-                        {/* Check-in Button */}
                         <AppButton
                             title="Xác nhận Check-in"
                             onPress={handleCheckIn}
@@ -159,7 +153,6 @@ const CheckInScreen: React.FC = () => {
                     </>
                 )}
 
-                {/* Success Modal */}
                 <CustomModal
                     visible={showSuccessModal}
                     title="Check-in Thành Công!"

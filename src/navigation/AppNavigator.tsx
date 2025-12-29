@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import LoginScreen from "../screens/LoginScreen";
-import SearchScreen from "../screens/SearchScreen";
-import BookingScreen from "../screens/BookingScreen";
-import BookingSuccessScreen from "../screens/BookingSuccessScreen";
-import HistoryScreen from "../screens/HistoryScreen";
-import SignupScreen from "../screens/SignupScreen";
+import LoginScreen from "../features/auth/screens/LoginScreen";
+import SearchScreen from "../features/search/screens/SearchScreen";
+import BookingScreen from "../features/booking/screens/BookingScreen";
+import BookingSuccessScreen from "../features/booking/screens/BookingSuccessScreen";
+import HistoryScreen from "../features/History/screens/HistoryScreen";
+import SignupScreen from "../features/auth/screens/SignupScreen";
 
 
 import { Room, BookingData, ScreenName, User } from "../types";

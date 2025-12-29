@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, useWindowDimensions, StatusBar, Platform } from 'react-native';
-import AppText from '../components/AppText';
-import AppButton from '../components/AppButton';
+import AppText from '../../../components/AppText';
+import AppButton from '../../../components/AppButton';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { COLORS, SIZES, SPACING, SHADOWS } from '../constaints/hotelTheme';
+import { COLORS, SIZES, SPACING, SHADOWS } from '../../../constaints/hotelTheme';
 
 interface User {
   userID: string;

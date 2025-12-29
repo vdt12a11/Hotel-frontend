@@ -1,9 +1,9 @@
 import React from "react";
 import { View, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from "react-native";
-import AppText from "../components/AppText";
-import AppButton from "../components/AppButton";
-import { calculateNights } from "../utils/calculateNights";
-import { COLORS, SIZES, SPACING } from "../constaints/hotelTheme";
+import AppText from "../../../components/AppText";
+import AppButton from "../../../components/AppButton";
+import { calculateNights } from "../../../utils/calculateNights";
+import { COLORS, SIZES, SPACING } from "../../../constaints/hotelTheme";
 
 interface Room {
   name: string;

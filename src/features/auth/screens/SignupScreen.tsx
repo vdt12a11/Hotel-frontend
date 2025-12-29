@@ -4,71 +4,71 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Alert,
+  Alert
 } from "react-native";
-import AppText from "../components/AppText";
-import AppInput from "../components/AppInput";
-import AppButton from "../components/AppButton";
-import { COLORS, SIZES, SHADOWS, FONTS, SPACING } from "../constaints/hotelTheme";
-import { User } from "../types";
+import AppText from "../../../components/AppText";
+import AppInput from "../../../components/AppInput";
+import AppButton from "../../../components/AppButton";
+import { COLORS, SIZES, SPACING } from "../../../constaints/hotelTheme";
 
-interface LoginScreenProps {
-  onLogin: (user: User) => void;
-  onSignup: () => void;
-}
+type SignupScreenProps = {
+  onBackToLogin: () => void;
+};
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignup }) => {
+type SignupPayload = {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+};
+
+type SignupResponse = {
+  message?: string;
+};
+
+export default function SignupScreen({
+  onBackToLogin
+}: SignupScreenProps): React.ReactElement {
+  const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const handleSubmit = async (): Promise<void> => {
-    if (!email.trim() || !password) {
-      Alert.alert("Lỗi", "Không được để trống thông tin");
+  const handleSignup = async (): Promise<void> => {
+    if (!name.trim() || !email.trim() || !phone.trim() || !password.trim()) {
+      Alert.alert("Thiếu thông tin", "Không được để trống bất kỳ trường nào");
       return;
     }
 
-    try {
-      // MOCK AUTHENTICATION: Allow admin@hotel.com / 123456 to login without server
-      if (email === "admin@hotel.com" && password === "123456") {
-        const user: User = {
-          userID: "693073ad2cb31ee8f077bfef",
-          name: "Admin User",
-          email: email,
-        };
-        onLogin(user);
-        return;
-      }
+    const payload: SignupPayload = { name, email, phone, password };
 
-      // Try real API if mock credentials don't match
-      const res = await fetch("http://10.0.2.2:3000/auth", {
+    try {
+      const res = await fetch("http://10.0.2.2:3000/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(payload)
       });
 
-      const data: any = await res.json();
+      const data: SignupResponse = await res.json();
+      console.log("Signup response data:", data);
 
       if (!res.ok) {
-        Alert.alert("Lỗi", data.message || "Đăng nhập thất bại");
+        Alert.alert("Lỗi", data.message || "Đăng ký thất bại");
         return;
       }
 
-      const user: User = {
-        userID: data.userID,
-        name: data.name,
-        email: data.email,
-      };
-
-      onLogin(user);
+      Alert.alert("Thành công", "Tạo tài khoản thành công!", [
+        { text: "OK", onPress: onBackToLogin }
+      ]);
     } catch (error) {
-      console.log("Login error:", error);
-      Alert.alert("Lỗi mạng", "Không thể kết nối tới server. Vui lòng sử dụng tài khoản demo: admin@hotel.com / 123456");
+      console.log("Signup error:", error);
+      Alert.alert("Lỗi mạng", "Không thể kết nối tới server");
     }
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: COLORS.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: COLORS.white }]}>
       <View style={styles.contentContainer}>
         <View style={styles.header}>
           <View style={[styles.iconCircle, { backgroundColor: COLORS.border }]}>
@@ -78,19 +78,36 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignup }) => {
           </View>
           <AppText variant="title" align="center">Hotel Manager</AppText>
           <AppText variant="body" color={COLORS.textLight} align="center" style={styles.subtitle}>
-            Sign in to your account
+            Create a new account
           </AppText>
         </View>
 
         <View style={styles.form}>
           <AppInput
+            label="Full Name"
+            placeholder="Nguyễn Văn A"
+            value={name}
+            onChangeText={setName}
+            testID="inputName"
+          />
+
+          <AppInput
             label="Email"
-            placeholder="admin@hotel.com"
+            placeholder="email@example.com"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
             testID="inputEmail"
+          />
+
+          <AppInput
+            label="Phone"
+            placeholder="0123456789"
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+            testID="inputPhone"
           />
 
           <View style={styles.passwordContainer}>
@@ -100,11 +117,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignup }) => {
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
+              autoCapitalize="none"
               testID="inputPassword"
             />
             <TouchableOpacity
               style={styles.eyeButton}
-              onPress={() => setShowPassword(!showPassword)}
+              onPress={() => setShowPassword((prev) => !prev)}
             >
               <AppText variant="body" color={COLORS.textLight}>
                 {showPassword ? "Ẩn" : "Xem"}
@@ -113,40 +131,26 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignup }) => {
           </View>
 
           <AppButton
-            title="Sign In"
-            onPress={handleSubmit}
+            title="Sign Up"
+            onPress={handleSignup}
             fullWidth
-
+            
             style={{ marginTop: SIZES.padding }}
           />
         </View>
 
-        <View style={[styles.signupPrompt, { marginTop: SPACING.xl }]}>
-          <AppText variant="body" color={COLORS.textLight}>
-            Chưa có tài khoản?{" "}
-          </AppText>
-          <TouchableOpacity onPress={onSignup}>
+        <TouchableOpacity onPress={onBackToLogin}>
+          <AppText variant="body" color={COLORS.textLight} align="center">
+            Đã có tài khoản?{" "}
             <AppText variant="body" color={COLORS.primary} style={{ fontWeight: "600" }}>
-              Đăng ký
+              Đăng nhập
             </AppText>
-          </TouchableOpacity>
-        </View>
-
-        <View style={[styles.demoBox, { backgroundColor: COLORS.lightGray, padding: SPACING.lg, borderWidth: 1, borderColor: COLORS.lightBlue }]}>
-          <AppText variant="body" color={COLORS.textDark} style={{ fontWeight: "600", marginBottom: SPACING.xs }}>
-            Demo Credentials:
           </AppText>
-          <AppText variant="body" color={COLORS.text}>
-            Email: admin@hotel.com
-          </AppText>
-          <AppText variant="body" color={COLORS.text}>
-            Password: 123456
-          </AppText>
-        </View>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
@@ -154,7 +158,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: SIZES.padding,
     justifyContent: "center",
-    paddingBottom: 40,
+    paddingBottom: 40
   },
   header: { alignItems: "center", marginBottom: SPACING.xxl },
   iconCircle: {
@@ -163,20 +167,20 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.lg
   },
   cameraIconShape: {
     width: 32,
     height: 24,
     borderRadius: 4,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "center"
   },
   cameraLens: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    borderWidth: 2,
+    borderWidth: 2
   },
   subtitle: { marginTop: SPACING.md },
   form: { marginBottom: SPACING.xl },
@@ -187,11 +191,4 @@ const styles = StyleSheet.create({
     top: SIZES.base * 5.5,
     paddingHorizontal: SPACING.sm,
   },
-  signupPrompt: { flexDirection: "row", justifyContent: "center", alignItems: "center" },
-  demoBox: {
-    borderRadius: SIZES.radiusSmall,
-    marginTop: SPACING.sm,
-  },
 });
-
-export default LoginScreen;

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { AppText, AppInput, AppButton, RoomCard, ScreenContainer, CustomModal, PriceSummary } from '../components';
-import { COLORS, SPACING, SHADOWS, SIZES } from '../constaints/hotelTheme';
-import { Room } from '../types';
+import { AppText, AppInput, AppButton, RoomCard, ScreenContainer, CustomModal, PriceSummary } from '../../../components';
+import { COLORS, SPACING, SHADOWS, SIZES } from '../../../constaints/hotelTheme';
+import { Room } from '../../../types';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 // Mock data - Day 2 strategy: "Mock It Till You Make It"
@@ -72,8 +72,7 @@ const CheckOutScreen: React.FC = () => {
 
     return (
         <ScreenContainer withScroll={true}>
-            <View style={[styles.container, { paddingTop: 40 }]}> {/* Thêm paddingTop để tránh dính sát phần trên */}
-                {/* Header */}
+            <View style={[styles.container, { paddingTop: 40 }]}>
                 <TouchableOpacity
                     onPress={() => navigation.goBack()}
                     hitSlop={{top:10, left:10, right:10, bottom:10}}
@@ -89,7 +88,6 @@ const CheckOutScreen: React.FC = () => {
                     </AppText>
                 </View>
 
-                {/* Room Number Input */}
                 <View style={styles.section}>
                     <AppInput
                         label="Số Phòng"
@@ -105,7 +103,6 @@ const CheckOutScreen: React.FC = () => {
                     />
                 </View>
 
-                {/* Room Information */}
                 {selectedRoom && (
                     <>
                         <View style={styles.section}>
@@ -116,7 +113,6 @@ const CheckOutScreen: React.FC = () => {
                             />
                         </View>
 
-                        {/* Guest Information */}
                         <View style={styles.section}>
                             <AppText variant="subtitle" style={styles.sectionTitle}>Thông tin khách</AppText>
                             <View style={styles.infoCard}>
@@ -135,7 +131,6 @@ const CheckOutScreen: React.FC = () => {
                             </View>
                         </View>
 
-                        {/* Price Summary */}
                         <View style={styles.section}>
                             <AppText variant="subtitle" style={styles.sectionTitle}>Chi tiết thanh toán</AppText>
                             <PriceSummary
@@ -143,7 +138,6 @@ const CheckOutScreen: React.FC = () => {
                                 nights={nights}
                             />
 
-                            {/* Additional Charges */}
                             {additionalCharges > 0 && (
                                 <View style={styles.additionalCharges}>
                                     <View style={styles.chargeRow}>
@@ -165,7 +159,6 @@ const CheckOutScreen: React.FC = () => {
                             )}
                         </View>
 
-                        {/* Check-out Button */}
                         <AppButton
                             title="Xác nhận Check-out"
                             onPress={handleCheckOut}
@@ -174,7 +167,6 @@ const CheckOutScreen: React.FC = () => {
                     </>
                 )}
 
-                {/* Success Modal */}
                 <CustomModal
                     visible={showSuccessModal}
                     title="Check-out Thành Công!"

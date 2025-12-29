@@ -1,13 +1,13 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import LoginScreen from '../screens/LoginScreen';
-import SignupScreen from '../screens/SignupScreen';
+import LoginScreen from '../features/auth/screens/LoginScreen';
+import SignupScreen from '../features/auth/screens/SignupScreen';
 import TabNavigator from './TabNavigator';
-import BookingScreen from '../screens/BookingScreen';
-import BookingSuccessScreen from '../screens/BookingSuccessScreen';
-import CheckInScreen from '../screens/CheckInScreen';
-import CheckOutScreen from '../screens/CheckOutScreen';
-import HistoryScreen from '../screens/HistoryScreen';
+import BookingScreen from '../features/booking/screens/BookingScreen';
+import BookingSuccessScreen from '../features/booking/screens/BookingSuccessScreen';
+import CheckInScreen from '../features/Check-in-out/screens/CheckInScreen';
+import CheckOutScreen from '../features/Check-in-out/screens/CheckOutScreen';
+import HistoryScreen from '../features/History/screens/HistoryScreen';
 import { User, BookingData } from '../types';
 import { Alert } from 'react-native';
 
