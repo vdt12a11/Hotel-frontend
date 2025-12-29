@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS } from '../../constaints/hotelTheme';
+import { COLORS } from '../../../constaints/hotelTheme';
 
 interface CustomModalProps {
     visible: boolean;

@@ -28,6 +28,7 @@ interface Room {
 interface BottomTabNavigatorProps {
   onSelectRoom?: (room: Room, search: { capacity: string }) => void;
   currentUser?: User;
+  onLogout?: () => void;
   onNavigate?: (screen: string) => void;
 }
 
@@ -37,7 +38,7 @@ interface TabConfig {
   props?: Record<string, any>;
 }
 
-const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({ onSelectRoom, currentUser, onNavigate }) => {
+const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({ onSelectRoom, currentUser, onLogout, onNavigate }) => {
   const TAB_CONFIG: TabConfig[] = [
     {
       name: 'Search',
@@ -49,7 +50,7 @@ const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({ onSelectRoom, c
     },
     {
       name: 'Profile',
-      component: UserProfileScreen,
+      component: (props: any) => <UserProfileScreen {...props} onLogout={onLogout} user={currentUser} />,
     },
   ];
 

@@ -1,6 +1,10 @@
 import React from 'react';
 import { Text, StyleSheet, TextStyle, StyleProp } from 'react-native';
-import { COLORS, SIZES, FONTS } from '../constaints/hotelTheme';
+import { COLORS, SIZES, FONTS } from '../../constaints/hotelTheme';
+
+// Usage: <AppText variant="title" color={COLORS.primary}>Hotel Name</AppText>
+// Variants: title | subtitle | body | caption; align: left | center | right.
+// Trường hợp: title cho header màn hình; subtitle cho section; body cho nội dung; caption cho ghi chú/phụ đề.
 
 type TextVariant = 'title' | 'subtitle' | 'body' | 'caption';
 
@@ -13,7 +17,7 @@ interface AppTextProps {
   align?: 'left' | 'center' | 'right';
 }
 
-export const AppText: React.FC<AppTextProps> = ({
+const AppText: React.FC<AppTextProps> = ({
   children,
   variant = 'body',
   style,
@@ -24,6 +28,7 @@ export const AppText: React.FC<AppTextProps> = ({
   const variantStyle = styles[variant];
   const colorStyle = color ? { color } : {};
   const alignStyle = { textAlign: align };
+
   return (
     <Text
       style={[variantStyle, colorStyle, alignStyle, style]}
@@ -36,22 +41,21 @@ export const AppText: React.FC<AppTextProps> = ({
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: SIZES.large,
+    ...FONTS.h1,
     fontWeight: 'bold',
-    fontFamily: FONTS.bold,
   },
   subtitle: {
-    fontSize: SIZES.medium,
-    fontWeight: '600',
-    fontFamily: FONTS.medium,
+    ...FONTS.h2,
+    fontWeight: 'bold',
   },
   body: {
-    fontSize: SIZES.base,
-    fontFamily: FONTS.regular,
+    ...FONTS.body3,
+    fontWeight: 'normal',
   },
   caption: {
-    fontSize: SIZES.small,
-    color: COLORS.textLight,
-    fontFamily: FONTS.light,
+    ...FONTS.body5,
+    fontWeight: 'normal',
   },
 });
+
+export default AppText;

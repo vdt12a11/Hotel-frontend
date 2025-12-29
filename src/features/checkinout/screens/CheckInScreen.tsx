@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { AppText, AppInput, AppButton, DateRangePicker, RoomCard, ScreenContainer, CustomModal } from '../../../components';
+import { AppText, AppInput, AppButton, DateRangePicker, RoomCard, ScreenContainer, CustomModal } from '../../../shared/components';
 import { COLORS, SPACING, SHADOWS, SIZES } from '../../../constaints/hotelTheme';
 import { Room } from '../../../types';
 import Icon from 'react-native-vector-icons/Ionicons';

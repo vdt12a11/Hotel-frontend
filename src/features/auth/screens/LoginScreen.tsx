@@ -5,14 +5,15 @@ import {
   StyleSheet,
   SafeAreaView,
   Alert,
-  Text,
+  Platform,
 } from "react-native";
-import { AppText } from "../../../shared/components/AppText";
-import { AppInput } from "../../../shared/components/AppInput";
-import { AppButton } from "../../../shared/components/AppButton";
-import { COLORS, SIZES, SHADOWS, FONTS, SPACING } from "../../../shared/constaints/hotelTheme";
+
+import { COLORS, SIZES, SPACING } from "../../../constaints/hotelTheme";
 import { useLogin } from '../hooks/useLogin';
 import { AuthService } from '../services/AuthService';
+import AppText from "../../../shared/components/AppText";
+import AppInput from "../../../shared/components/AppInput";
+import AppButton from "../../../shared/components/AppButton";
 
 interface LoginScreenProps {
   onLogin: (user: any) => void;
@@ -20,145 +21,227 @@ interface LoginScreenProps {
 }
 
 const authService = new AuthService();
+
 export default function LoginScreen({ onLogin, onSignup }: LoginScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { login, loading, error } = useLogin(authService);
 
-  const handleLogin = useCallback(() => {
+  const handleLogin = useCallback(async () => {
     if (!email.trim() || !password) {
       Alert.alert("Lỗi", "Không được để trống thông tin");
       return;
     }
-    login(email, password);
-  }, [email, password, login]);
+    const token = await login(email, password);
+    if (token) {
+      onLogin({ userID: token, name: email });
+    }
+  }, [email, password, login, onLogin]);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: COLORS.background }]}> 
-      <View style={styles.contentContainer}>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
         <View style={styles.header}>
-          <View style={[styles.iconCircle, { backgroundColor: COLORS.border }]}>
-            <View style={[styles.cameraIconShape, { backgroundColor: COLORS.primary }]}>
-              <View style={[styles.cameraLens, { backgroundColor: COLORS.white, borderColor: COLORS.primary }]} />
+          <View style={styles.iconCircle}>
+            <View style={styles.cameraIconShape}>
+              <View style={styles.cameraLens} />
             </View>
           </View>
-          <AppText variant="title" align="center">Hotel Manager</AppText>
+          <AppText variant="title" align="center" style={styles.title}>Hotel Manager</AppText>
           <AppText variant="body" color={COLORS.textLight} align="center" style={styles.subtitle}>
             Sign in to your account
           </AppText>
         </View>
-
         <View style={styles.form}>
+          
+          <AppText style={styles.label}>Email</AppText>
           <AppInput
-            label="Email"
-            placeholder="admin@hotel.com"
             value={email}
             onChangeText={setEmail}
+            placeholder="admin@hotel.com"
             autoCapitalize="none"
             keyboardType="email-address"
             testID="inputEmail"
           />
-
-          <View style={styles.passwordContainer}>
+          <AppText style={[styles.label, { marginTop: 18 }]}>Password</AppText>
+          <View style={styles.passwordWrapper}>
             <AppInput
-              label="Password"
-              placeholder="••••••"
-              secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
+              placeholder="••••••"
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
               testID="inputPassword"
             />
             <TouchableOpacity
               style={styles.eyeButton}
-              onPress={() => setShowPassword(!showPassword)}
+              onPress={() => setShowPassword((v) => !v)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <AppText variant="body" color={COLORS.textLight}>
-                {showPassword ? "Ẩn" : "Xem"}
-              </AppText>
+              <AppText style={styles.eyeText}>{showPassword ? "Ẩn" : "Hiện mật khẩu"}</AppText>
             </TouchableOpacity>
           </View>
-
           <AppButton
             title="Sign In"
             onPress={handleLogin}
             fullWidth
             loading={loading}
-            style={{ marginTop: SIZES.padding }}
+            style={styles.button}
           />
-          {error && <Text>{error}</Text>}
+          {error && <AppText style={styles.error}>{error}</AppText>}
         </View>
-
-        <View style={[styles.signupPrompt, { marginTop: SPACING.xl }]}>
-          <AppText variant="body" color={COLORS.textLight}>
-            Chưa có tài khoản?{" "}
-          </AppText>
+        <View style={styles.signupRow}>
+          <AppText style={styles.signupText}>Chưa có tài khoản?</AppText>
           <TouchableOpacity onPress={onSignup}>
-            <AppText variant="body" color={COLORS.primary} style={{ fontWeight: "600" }}>
-              Đăng ký
-            </AppText>
+            <AppText style={styles.signupLink}>Đăng ký</AppText>
           </TouchableOpacity>
-        </View>
-
-        <View style={[styles.demoBox, { backgroundColor: COLORS.lightGray, padding: SPACING.lg, borderWidth: 1, borderColor: COLORS.lightBlue }]}>
-          <AppText variant="body" color={COLORS.textDark} style={{ fontWeight: "600", marginBottom: SPACING.xs }}>
-            Demo Credentials:
-          </AppText>
-          <AppText variant="body" color={COLORS.text}>
-            Email: admin@hotel.com
-          </AppText>
-          <AppText variant="body" color={COLORS.text}>
-            Password: 123456
-          </AppText>
-        </View>
+        </View>     
       </View>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  contentContainer: {
+  safeArea: {
     flex: 1,
-    paddingHorizontal: SIZES.padding,
-    justifyContent: "center",
-    paddingBottom: 40,
+    backgroundColor: COLORS.background,
   },
-  header: { alignItems: "center", marginBottom: SPACING.xxl },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? 24 : 0,
+    backgroundColor: COLORS.background,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
   iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: SPACING.lg,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 18,
   },
   cameraIconShape: {
-    width: 32,
+    width: 36,
     height: 24,
-    borderRadius: 4,
-    alignItems: "center",
-    justifyContent: "center",
+    borderRadius: 8,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   cameraLens: {
     width: 12,
     height: 12,
     borderRadius: 6,
+    backgroundColor: COLORS.white,
     borderWidth: 2,
+    borderColor: COLORS.primary,
+    marginTop: 4,
   },
-  subtitle: { marginTop: SPACING.md },
-  form: { marginBottom: SPACING.xl },
-  passwordContainer: { position: "relative", justifyContent: "center" },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 15,
+    color: COLORS.textLight,
+    marginBottom: 18,
+    textAlign: 'center',
+  },
+  form: {
+    width: '100%',
+    maxWidth: 380,
+    alignSelf: 'center',
+    marginBottom: 18,
+  },
+  label: {
+    fontSize: 15,
+    color: COLORS.textDark,
+    fontWeight: '500',
+    marginBottom: 8,
+    marginLeft: 2,
+  },
+  passwordWrapper: {
+    position: 'relative',
+    marginBottom: 0,
+  },
   eyeButton: {
-    position: "absolute",
-    right: SIZES.padding * 0.8,
-    top: SIZES.base * 5.5,
-    paddingHorizontal: SPACING.sm,
+    position: 'absolute',
+    right: 10,
+    top: 12,
+    zIndex: 2,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
   },
-  signupPrompt: { flexDirection: "row", justifyContent: "center", alignItems: "center" },
+  eyeText: {
+    fontSize: 13,
+    color: COLORS.primary,
+  },
+  button: {
+    marginTop: 28,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  error: {
+    color: COLORS.lightBlue,
+    marginTop: 8,
+    textAlign: 'center',
+    fontSize: 14,
+  },
+  signupRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  signupText: {
+    fontSize: 14,
+    color: COLORS.textLight,
+    marginRight: 4,
+  },
+  signupLink: {
+    fontSize: 14,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
   demoBox: {
-    borderRadius: SIZES.radiusSmall,
-    marginTop: SPACING.sm,
+    width: '100%',
+    maxWidth: 380,
+    alignSelf: 'center',
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  demoTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textDark,
+    marginBottom: 4,
+  },
+  demoLine: {
+    fontSize: 13,
+    color: COLORS.text,
+    marginBottom: 2,
   },
 });
 

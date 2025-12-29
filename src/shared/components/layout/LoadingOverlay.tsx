@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
-import { COLORS } from '../../constaints/hotelTheme';
+import { COLORS } from '../../../constaints/hotelTheme';
 
 interface LoadingOverlayProps {
     visible?: boolean;

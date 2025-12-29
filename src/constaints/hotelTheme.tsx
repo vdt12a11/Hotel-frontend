@@ -135,28 +135,28 @@ export const FONTS = {
     fontFamily: 'System', 
     fontSize: SIZES.h1, 
     lineHeight: 40, 
-    fontWeight: 'bold' as const, 
+    fontWeight: 'bold', 
     color: COLORS.textDark 
   },
   h2: { 
     fontFamily: 'System', 
     fontSize: SIZES.h2, 
     lineHeight: 32, 
-    fontWeight: 'bold' as const, 
+    fontWeight: 'bold', 
     color: COLORS.textDark 
   },
   h3: { 
     fontFamily: 'System', 
     fontSize: SIZES.h3, 
     lineHeight: 28, 
-    fontWeight: '600' as const, 
+    fontWeight: '600', 
     color: COLORS.textDark 
   },
   h4: { 
     fontFamily: 'System', 
     fontSize: SIZES.h4, 
     lineHeight: 24, 
-    fontWeight: '600' as const, 
+    fontWeight: '600', 
     color: COLORS.textDark 
   },
   
@@ -165,35 +165,35 @@ export const FONTS = {
     fontFamily: 'System', 
     fontSize: SIZES.body1, 
     lineHeight: 24, 
-    fontWeight: 'normal' as const, 
+    fontWeight: 'normal', 
     color: COLORS.text 
   },
   body2: { 
     fontFamily: 'System', 
     fontSize: SIZES.body2, 
     lineHeight: 22, 
-    fontWeight: 'normal' as const, 
+    fontWeight: 'normal', 
     color: COLORS.text 
   },
   body3: { 
     fontFamily: 'System', 
     fontSize: SIZES.body3, 
     lineHeight: 20, 
-    fontWeight: 'normal' as const, 
+    fontWeight: 'normal', 
     color: COLORS.text 
   },
   body4: { 
     fontFamily: 'System', 
     fontSize: SIZES.body4, 
     lineHeight: 18, 
-    fontWeight: 'normal' as const, 
+    fontWeight: 'normal', 
     color: COLORS.textLight 
   },
   body5: { 
     fontFamily: 'System', 
     fontSize: SIZES.body5, 
     lineHeight: 16, 
-    fontWeight: 'normal' as const, 
+    fontWeight: 'normal', 
     color: COLORS.textLight 
   },
 
@@ -202,23 +202,32 @@ export const FONTS = {
     fontFamily: 'System', 
     fontSize: SIZES.priceText, 
     lineHeight: 36, 
-    fontWeight: 'bold' as const, 
+    fontWeight: 'bold', 
     color: COLORS.primary 
   },
   priceSmall: { 
     fontFamily: 'System', 
     fontSize: SIZES.h3, 
     lineHeight: 28, 
-    fontWeight: '600' as const, 
+    fontWeight: '600', 
     color: COLORS.primary 
   },
   rating: { 
     fontFamily: 'System', 
     fontSize: SIZES.ratingText, 
     lineHeight: 24, 
-    fontWeight: '600' as const, 
+    fontWeight: '600', 
     color: COLORS.rating 
   },
+
+  // Shared theme font keys
+  regular: 'System',
+  medium: 'System',
+  bold: 'System',
+  light: 'System',
+
+  // Bổ sung font bold chuẩn cho Text
+  BOLD: { fontFamily: 'System', fontWeight: 'bold' },
 };
 
 // --- HIỆU ỨNG BÓNG ĐỔ (SHADOWS) ---

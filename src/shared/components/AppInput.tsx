@@ -1,52 +1,116 @@
-import React from 'react';
-import { TextInput, View, Text, StyleSheet, KeyboardTypeOptions } from 'react-native';
-import { COLORS, SIZES } from '../constaints/hotelTheme';
+import React, { useState } from 'react';
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  ViewStyle,
+  TextInputProps,
+  StyleProp,
+  TextStyle,
+} from 'react-native';
+import { COLORS, SIZES, FONTS, SHADOWS } from '../../constaints/hotelTheme';
 
-interface AppInputProps {
+// Usage: <AppInput label="Email" placeholder="you@example.com" value={email} onChangeText={setEmail} />
+// Trường hợp: form đăng nhập/đặt phòng; nhập số đêm/giá bằng keyboardType.
+// Dùng errorText để hiển thị lỗi; inputStyle/containerStyle/labelStyle để tùy chỉnh layout.
+
+interface AppInputProps extends Omit<TextInputProps, 'style'> {
   label?: string;
-  placeholder?: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  secureTextEntry?: boolean;
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  keyboardType?: KeyboardTypeOptions;
-  testID?: string;
+  errorText?: string;
+  containerStyle?: StyleProp<ViewStyle>;
+  inputStyle?: StyleProp<TextStyle>;
+  labelStyle?: StyleProp<TextStyle>;
+  errorStyle?: StyleProp<TextStyle>;
 }
 
-export const AppInput: React.FC<AppInputProps> = ({
+const AppInput: React.FC<AppInputProps> = ({
   label,
-  placeholder,
-  value,
-  onChangeText,
-  secureTextEntry,
-  autoCapitalize,
-  keyboardType,
-  testID,
-}) => (
-  <View style={styles.container}>
-    {label && <Text style={styles.label}>{label}</Text>}
-    <TextInput
-      style={styles.input}
-      placeholder={placeholder}
-      value={value}
-      onChangeText={onChangeText}
-      secureTextEntry={secureTextEntry}
-      autoCapitalize={autoCapitalize}
-      keyboardType={keyboardType}
-      testID={testID}
-    />
-  </View>
-);
+  errorText,
+  containerStyle,
+  inputStyle,
+  labelStyle,
+  errorStyle,
+  ...textInputProps
+}) => {
+  const [isFocused, setIsFocused] = useState(false);
+
+  const hasError = !!errorText;
+
+  const inputContainerStyle = [
+    styles.inputContainer,
+    isFocused && styles.inputContainer_focused,
+    hasError && styles.inputContainer_error,
+  ];
+
+  return (
+    <View style={[styles.container, containerStyle]}>
+      {label && (
+        <Text style={[styles.label, labelStyle]}>{label}</Text>
+      )}
+      
+      <View style={inputContainerStyle}>
+        <TextInput
+          style={[styles.input, inputStyle]}
+          placeholderTextColor={COLORS.placeholderColor}
+          onFocus={(e) => {
+            setIsFocused(true);
+            textInputProps.onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setIsFocused(false);
+            textInputProps.onBlur?.(e);
+          }}
+          {...textInputProps}
+        />
+      </View>
+
+      {hasError && (
+        <Text style={[styles.errorText, errorStyle]}>{errorText}</Text>
+      )}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  container: { marginBottom: SIZES.base },
-  label: { color: COLORS.text, marginBottom: 4 },
+  container: {
+    marginBottom: SIZES.padding,
+  },
+  label: {
+    ...FONTS.body4,
+    fontWeight: '500', // valid value for TextStyle
+    color: COLORS.textDark,
+    marginBottom: SIZES.base,
+  },
+  inputContainer: {
+    backgroundColor: COLORS.white,
+    borderRadius: SIZES.radius,
+    paddingHorizontal: SIZES.padding * 0.8,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    height: SIZES.base * 6.25,
+    ...SHADOWS.medium,
+  },
+  inputContainer_focused: {
+    borderColor: COLORS.primary,
+  },
+  inputContainer_error: {
+    borderColor: COLORS.danger,
+  },
   input: {
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 8,
-    padding: SIZES.base,
-    color: COLORS.text,
-    backgroundColor: COLORS.inputBg,
+    flex: 1,
+    ...FONTS.body3,
+    color: COLORS.textDark,
+    height: 55,
+    fontWeight: 'normal',
+  },
+  errorText: {
+    ...FONTS.body5,
+    color: COLORS.danger,
+    marginTop: SIZES.base / 2,
+    marginLeft: SIZES.base,
+    fontWeight: 'normal',
   },
 });
+
+export default AppInput;

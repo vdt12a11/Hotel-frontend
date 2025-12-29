@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import AppText from './AppText';
-import { COLORS, SPACING, SHADOWS } from '../constaints/hotelTheme';
+import { COLORS, SPACING, SHADOWS } from '../../constaints/hotelTheme';
 import Icon from 'react-native-vector-icons/Ionicons';
+import AppText from './AppText';
 
 interface GuestCounterProps {
     count: number;

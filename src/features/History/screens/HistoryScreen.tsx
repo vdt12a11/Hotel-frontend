@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, useWindowDimensions, StatusBar, Platform } from 'react-native';
-import AppText from '../../../components/AppText';
-import AppButton from '../../../components/AppButton';
+import AppText from "../../../shared/components/AppText";
+import AppButton from "../../../shared/components/AppButton";
 import Icon from 'react-native-vector-icons/Ionicons';
 import { COLORS, SIZES, SPACING, SHADOWS } from '../../../constaints/hotelTheme';
 

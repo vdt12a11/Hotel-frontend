@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import AppText from '../../components/AppText';
-import { COLORS, SIZES, SPACING } from '../../constaints/hotelTheme';
+import { COLORS, SIZES, SPACING } from '../../../constaints/hotelTheme';
 
 interface BookingStatusBadgeProps {
   status: 'upcoming' | 'past';

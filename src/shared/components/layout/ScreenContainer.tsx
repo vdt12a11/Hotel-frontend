@@ -1,6 +1,6 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet, View, KeyboardAvoidingView, Platform, ScrollView, ViewStyle } from 'react-native';
-import { COLORS } from '../../constaints/hotelTheme';
+import { COLORS } from '../../../constaints/hotelTheme';
 
 interface Props {
     children: React.ReactNode;

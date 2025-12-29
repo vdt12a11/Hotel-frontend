@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, Image } from 'react-native';
-import AppText from '../../../components/AppText';
 import { COLORS, SIZES, SPACING, SHADOWS } from '../../../constaints/hotelTheme';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { User, BookingHistoryItem } from '../../../types';
-import ScreenContainer from '../../../components/layout/ScreenContainer';
+import { AppText } from '../../../shared/components';
+import ScreenContainer from '../../../shared/components/layout/ScreenContainer';
 
 interface MyBookingsScreenProps {
   user: User | null;

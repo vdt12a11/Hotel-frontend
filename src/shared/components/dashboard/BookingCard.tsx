@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import AppText from '../../components/AppText';
-import { COLORS, SIZES, SPACING, SHADOWS } from '../../constaints/hotelTheme';
-import { Booking } from '../../data/mockBookings';
+
+import { COLORS, SIZES, SPACING, SHADOWS } from '../../../constaints/hotelTheme';
+import { Booking } from '../../../data/mockBookings';
 import BookingStatusBadge from './BookingStatusBadge';
+import AppText from '../AppText';
 
 interface BookingCardProps {
   booking: Booking;

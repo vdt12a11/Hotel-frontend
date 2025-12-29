@@ -10,12 +10,11 @@ import {
   Alert
 } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
-import AppText from "../../../components/AppText";
-import AppInput from "../../../components/AppInput";
-import AppButton from "../../../components/AppButton";
+
 import { calculateNights } from "../../../utils/calculateNights";
 import { COLORS, SIZES, SPACING, SHADOWS } from "../../../constaints/hotelTheme";
 import { Room, BookingFormData, BookingData } from "../../../types";
+import { AppButton, AppInput, AppText } from "../../../shared/components";
 
 interface BookingScreenProps {
   room: Room;

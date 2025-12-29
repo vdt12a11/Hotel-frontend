@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { AppText, AppInput, AppButton, RoomCard, ScreenContainer, CustomModal, PriceSummary } from '../../../components';
+import { AppText, AppInput, AppButton, RoomCard, ScreenContainer, CustomModal, PriceSummary } from '../../../shared/components';
 import { COLORS, SPACING, SHADOWS, SIZES } from '../../../constaints/hotelTheme';
 import { Room } from '../../../types';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -72,7 +72,7 @@ const CheckOutScreen: React.FC = () => {
 
     return (
         <ScreenContainer withScroll={true}>
-            <View style={[styles.container, { paddingTop: 40 }]}>
+            <View style={[styles.container, { paddingTop: 40 }]}> 
                 <TouchableOpacity
                     onPress={() => navigation.goBack()}
                     hitSlop={{top:10, left:10, right:10, bottom:10}}

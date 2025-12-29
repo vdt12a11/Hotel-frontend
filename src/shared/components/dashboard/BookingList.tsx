@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
+
+
+import { COLORS, SIZES, SPACING } from '../../../constaints/hotelTheme';
+import { Booking } from '../../../data/mockBookings';
 import AppText from '../AppText';
 import BookingCard from './BookingCard';
-import { COLORS, SIZES, SPACING } from '../../constaints/hotelTheme';
-import { Booking } from '../../data/mockBookings';
 
 interface BookingListProps {
   bookings: Booking[];

@@ -6,10 +6,10 @@ import {
   SafeAreaView,
   Alert
 } from "react-native";
-import AppText from "../../../components/AppText";
-import AppInput from "../../../components/AppInput";
-import AppButton from "../../../components/AppButton";
 import { COLORS, SIZES, SPACING } from "../../../constaints/hotelTheme";
+import AppText from "../../../shared/components/AppText";
+import AppInput from "../../../shared/components/AppInput";
+import AppButton from "../../../shared/components/AppButton";
 
 type SignupScreenProps = {
   onBackToLogin: () => void;
@@ -68,7 +68,7 @@ export default function SignupScreen({
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: COLORS.white }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: COLORS.background }]}>
       <View style={styles.contentContainer}>
         <View style={styles.header}>
           <View style={[styles.iconCircle, { backgroundColor: COLORS.border }]}>

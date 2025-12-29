@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import AppText from './AppText';
-import { COLORS, SPACING, SHADOWS } from '../constaints/hotelTheme';
+import { COLORS, SPACING, SHADOWS } from '../../constaints/hotelTheme';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 interface DateRangePickerProps {

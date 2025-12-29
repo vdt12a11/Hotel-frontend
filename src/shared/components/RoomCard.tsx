@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import AppText from "./AppText";
-import { COLORS, SIZES, SPACING, SHADOWS } from "../constaints/hotelTheme";
+import { COLORS, SIZES, SPACING, SHADOWS } from "../../constaints/hotelTheme";
 
 interface Room {
   name: string;

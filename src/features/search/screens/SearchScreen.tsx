@@ -12,13 +12,11 @@ import {
   StyleSheet
 } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import AppText from "../../../components/AppText";
-import AppInput from "../../../components/AppInput";
-import AppButton from "../../../components/AppButton";
-import BookingList from "../../../components/dashboard/BookingList";
+import BookingList from "../../../shared/components/dashboard/BookingList";
 import { mockBookings } from "../../../data/mockBookings";
 import { COLORS, SIZES, SPACING, SHADOWS } from "../../../constaints/hotelTheme";
 import type { ScreenName } from "../../../types";
+import { AppButton, AppInput, AppText } from "../../../shared/components";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - 40 - 15) / 2;

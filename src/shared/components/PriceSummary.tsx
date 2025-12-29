@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { COLORS, SPACING, SHADOWS } from '../../constaints/hotelTheme';
 import AppText from './AppText';
-import { COLORS, SPACING, SHADOWS } from '../constaints/hotelTheme';
 
 interface PriceSummaryProps {
     pricePerNight: number;
