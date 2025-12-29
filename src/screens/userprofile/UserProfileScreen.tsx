@@ -163,7 +163,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ user, onLogout })
 
           {/* Logout Section */}
           <TouchableOpacity
-            style={[styles.logoutBtn, { marginHorizontal: responsive.btnPaddingH, marginTop: 20 }]}
+            style={[styles.logoutBtn, { marginHorizontal: responsive.btnPaddingH }]}
             onPress={onLogout}
           >
             <Ionicons name="log-out-outline" size={20} color={COLORS.danger} />

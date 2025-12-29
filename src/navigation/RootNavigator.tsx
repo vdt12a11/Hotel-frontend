@@ -5,6 +5,9 @@ import SignupScreen from '../screens/SignupScreen';
 import TabNavigator from './TabNavigator';
 import BookingScreen from '../screens/BookingScreen';
 import BookingSuccessScreen from '../screens/BookingSuccessScreen';
+import CheckInScreen from '../screens/CheckInScreen';
+import CheckOutScreen from '../screens/CheckOutScreen';
+import HistoryScreen from '../screens/HistoryScreen';
 import { User, BookingData } from '../types';
 import { Alert } from 'react-native';
 
@@ -70,6 +73,17 @@ const RootNavigator: React.FC<RootNavigatorProps> = ({ user, onLogin, onLogout }
                 <>
                     <Stack.Screen name="Main">
                         {(props: any) => <TabNavigator {...props} user={user} onLogout={onLogout} />}
+                    </Stack.Screen>
+                    <Stack.Screen name="CheckIn" component={CheckInScreen} />
+                    <Stack.Screen name="CheckOut" component={CheckOutScreen} />
+                    <Stack.Screen name="History">
+                        {(props: any) => (
+                            <HistoryScreen
+                                {...props}
+                                user={user!}
+                                onBack={() => props.navigation.goBack()}
+                            />
+                        )}
                     </Stack.Screen>
 
                     <Stack.Group screenOptions={{ presentation: 'modal' }}>

@@ -1,114 +1,143 @@
 import React from 'react';
-import { Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { View, StyleSheet } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { COLORS, SIZES, SHADOWS, SPACING } from '../constaints/hotelTheme';
 import SearchScreen from '../screens/SearchScreen';
 import UserProfileScreen from '../screens/userprofile/UserProfileScreen';
-import MyBookingsScreen from '../screens/MyBookingsScreen';
-import CheckInScreen from '../screens/CheckInScreen';
-import CheckOutScreen from '../screens/CheckOutScreen';
-import { COLORS, FONTS, SHADOWS } from '../constaints/hotelTheme';
-import { User } from '../types';
-
-interface TabNavigatorProps {
-    user: User;
-    onLogout: () => void;
-}
+import PlaceholderScreen from '../screens/PlaceholderScreen';
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
 
-const TabNavigator: React.FC<TabNavigatorProps> = ({ user, onLogout }) => {
-    return (
-        <Tab.Navigator
-            screenOptions={({ route }: { route: any }) => ({
-                headerShown: false,
-                tabBarActiveTintColor: COLORS.primary,
-                tabBarInactiveTintColor: COLORS.textLight,
-                tabBarStyle: {
-                    backgroundColor: COLORS.white,
-                    borderTopColor: COLORS.border,
-                    height: Platform.OS === 'ios' ? 88 : 68, // Taller tab bar like Booking.com mobile
-                    paddingBottom: Platform.OS === 'ios' ? 28 : 12,
-                    paddingTop: 8,
-                    elevation: 16, // Stronger Android shadow
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: -4 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 8,
-                },
-                tabBarLabelStyle: {
-                    ...FONTS.body5,
-                    fontSize: 12,
-                    fontWeight: '600',
-                    marginTop: 2,
-                },
-                tabBarIcon: ({ focused, color, size }: { focused: boolean; color: string; size: number }) => {
-                    let iconName = 'help-outline';
+interface User {
+  userID: string;
+  name: string;
+}
 
-                    if (route.name === 'Home') {
-                        iconName = focused ? 'search' : 'search-outline';
-                    } else if (route.name === 'MyBookings') {
-                        iconName = focused ? 'briefcase' : 'briefcase-outline'; // "Trips" metaphor
-                    } else if (route.name === 'Profile') {
-                        iconName = focused ? 'person' : 'person-outline';
-                    }
+interface Room {
+  id?: string | number;
+  name: string;
+  image?: string;
+  size?: string;
+  bed?: string;
+  view?: string;
+  price: number;
+  capacity?: number;
+}
 
-                    return <Icon name={iconName} size={26} color={color} style={{ marginBottom: 2 }} />;
-                },
-            })}
-        >
-            <Tab.Screen
-                name="Home"
-                options={{ tabBarLabel: "Tìm kiếm" }}
-            >
-                {(props: any) => (
-                    <Stack.Navigator screenOptions={{ headerShown: false }}>
-                        <Stack.Screen
-                            name="SearchTab"
-                            children={() => (
-                                <SearchScreen
-                                    {...props}
-                                    user={user}
-                                    onSelectRoom={(room, search) => props.navigation.navigate('Booking', { room, searchData: search })}
-                                    onNavigate={(screen) => props.navigation.navigate(screen)}
-                                />
-                            )}
-                        />
-                        <Stack.Screen
-                            name="CheckIn"
-                            component={CheckInScreen}
-                            options={{
-                                gestureEnabled: true,
-                            }}
-                        />
-                        <Stack.Screen
-                            name="CheckOut"
-                            component={CheckOutScreen}
-                            options={{
-                                gestureEnabled: true,
-                            }}
-                        />
-                    </Stack.Navigator>
-                )}
-            </Tab.Screen>
+interface BottomTabNavigatorProps {
+  onSelectRoom?: (room: Room, search: { capacity: string }) => void;
+  currentUser?: User;
+  onNavigate?: (screen: string) => void;
+}
 
-            <Tab.Screen
-                name="MyBookings"
-                options={{ tabBarLabel: "Chuyến đi" }}
-            >
-                {(props: any) => <MyBookingsScreen {...props} user={user} />}
-            </Tab.Screen>
+interface TabConfig {
+  name: string;
+  component: React.ComponentType<any>;
+  props?: Record<string, any>;
+}
 
-            <Tab.Screen
-                name="Profile"
-                options={{ tabBarLabel: "Cá nhân" }}
-            >
-                {(props: any) => <UserProfileScreen {...props} user={user} onLogout={onLogout} />}
-            </Tab.Screen>
-        </Tab.Navigator>
-    );
+const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({ onSelectRoom, currentUser, onNavigate }) => {
+  const TAB_CONFIG: TabConfig[] = [
+    {
+      name: 'Search',
+      component: SearchScreen,
+    },
+    {
+      name: 'Saved',
+      component: () => <PlaceholderScreen title="Saved" />,
+    },
+    {
+      name: 'Profile',
+      component: UserProfileScreen,
+    },
+  ];
+
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarShowLabel: true,
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.textLight,
+        tabBarStyle: styles.tabBar,
+        tabBarLabelStyle: styles.tabBarLabel,
+        tabBarIcon: ({ focused, color, size }) => {
+          // Map route name to Ionicons outline icons
+          let iconName: string = 'ellipse-outline';
+          switch (route.name) {
+            case 'Search':
+              iconName = 'search-outline';
+              break;
+            case 'History':
+              iconName = 'time-outline';
+              break;
+            case 'Saved':
+              iconName = 'heart-outline';
+              break;
+            case 'Profile':
+              iconName = 'person-outline';
+              break;
+            default:
+              iconName = 'ellipse-outline';
+          }
+
+          // Active: icon inside a light-gray circular background
+          if (focused) {
+            return (
+              <View style={styles.iconCircle}>
+                <Ionicons name={iconName as never} size={22} color={COLORS.primary} />
+              </View>
+            );
+          }
+
+          // Inactive: icon only, no background
+          return <Ionicons name={iconName as never} size={22} color={COLORS.textLight} />;
+        },
+      })}
+    >
+      {TAB_CONFIG.map((tab) => (
+        <Tab.Screen
+          key={tab.name}
+          name={tab.name}
+          component={tab.component}
+          initialParams={
+            tab.name === 'Search'
+              ? { onSelectRoom, currentUser, onNavigate }
+              : tab.name === 'History'
+              ? { user: currentUser }
+              : undefined
+          }
+          options={tab.props}
+        />
+      ))}
+    </Tab.Navigator>
+  );
 };
 
-export default TabNavigator;
+export default BottomTabNavigator;
+
+const styles = StyleSheet.create({
+  tabBar: {
+    position: 'absolute',
+    height: SIZES.base * 8, 
+    marginHorizontal: SPACING.xl, 
+    marginBottom: SPACING.md, 
+    borderRadius: SIZES.base * 4,
+    backgroundColor: COLORS.white,
+    ...SHADOWS.medium,
+  },
+  tabBarLabel: {
+    fontSize: SIZES.body4, 
+    marginBottom: SIZES.base, 
+    color: COLORS.text,
+  },
+  iconCircle: {
+    width: SIZES.base * 4 + 4, 
+    height: SIZES.base * 4 + 4, 
+    borderRadius: (SIZES.base * 4 + 4) / 2,
+    backgroundColor: COLORS.border, 
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AppText, AppInput, AppButton, DateRangePicker, RoomCard, ScreenContainer, CustomModal } from '../components';
 import { COLORS, SPACING, SHADOWS, SIZES } from '../constaints/hotelTheme';
@@ -85,7 +85,14 @@ const CheckInScreen: React.FC = () => {
 
     return (
         <ScreenContainer withScroll={true}>
-            <View style={styles.container}>
+            <View style={[styles.container, { paddingTop: 40 }]}> {/* Thêm paddingTop để tránh dính sát phần trên */}
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    hitSlop={{top:10, left:10, right:10, bottom:10}}
+                    style={styles.backCircle}
+                >
+                    <Icon name="arrow-back-outline" size={28} color={COLORS.primary} />
+                </TouchableOpacity>
                 {/* Header */}
                 <View style={styles.header}>
                     <Icon name="log-in-outline" size={40} color={COLORS.primary} />
@@ -168,6 +175,19 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingBottom: SPACING.xl,
+        paddingTop: SPACING.xl,
+    },
+    backCircle: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: COLORS.primaryLight,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: SPACING.md,
+        alignSelf: 'flex-start',
+        // Có thể thêm shadow nếu muốn nổi bật hơn:
+        ...SHADOWS.medium,
     },
     header: {
         alignItems: 'center',

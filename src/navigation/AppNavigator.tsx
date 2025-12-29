@@ -5,7 +5,7 @@ import BookingScreen from "../screens/BookingScreen";
 import BookingSuccessScreen from "../screens/BookingSuccessScreen";
 import HistoryScreen from "../screens/HistoryScreen";
 import SignupScreen from "../screens/SignupScreen";
-import ProfileScreen from "../screens/ProfileScreen";
+
 
 import { Room, BookingData, ScreenName, User } from "../types";
 
@@ -77,10 +77,10 @@ const AppNavigator: React.FC = () => {
         <SearchScreen
           user={currentUser}
           onSelectRoom={handleSelectRoom as (room: any, search: { capacity: string }) => void}
-          onNavigate={(screen) => {
+          onNavigate={(screen: ScreenName) => {
             // Only allow valid ScreenName values
             if (["login", "signup", "search", "booking", "history", "success", "profile", "MyBookings"].includes(screen)) {
-              setCurrentScreen(screen as ScreenName);
+              setCurrentScreen(screen);
             }
           }}
         />
@@ -97,15 +97,7 @@ const AppNavigator: React.FC = () => {
 
       {currentScreen === "history" && currentUser && (
         <HistoryScreen user={currentUser} onBack={() => setCurrentScreen("search")} />
-      )}
-
-      {currentScreen === "MyBookings" && currentUser && (
-        <ProfileScreen user={currentUser} onNavigate={(screen) => {
-          if (["login", "signup", "search", "booking", "history", "success", "MyBookings"].includes(screen)) {
-            setCurrentScreen(screen as ScreenName);
-          }
-        }} />
-      )}
+      )}     
 
       {currentScreen === "success" && bookingData && (
         <BookingSuccessScreen booking={bookingData} onReset={resetApp} />

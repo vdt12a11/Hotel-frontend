@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, useWindowDimensions, StatusBar, Platform } from 'react-native';
 import AppText from '../components/AppText';
 import AppButton from '../components/AppButton';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { COLORS, SIZES, SPACING, SHADOWS } from '../constaints/hotelTheme';
 
 interface User {
@@ -215,11 +216,13 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
       {/* Header */}
       <View style={[styles.header, { backgroundColor: COLORS.primary, paddingHorizontal: responsive.headerPaddingH }]}>
         <View style={styles.headerTop}>
-          <AppButton
-            title="Back"
+          <TouchableOpacity
             onPress={onBack}
-            style={styles.backButton}
-          />
+            hitSlop={{top:10, left:10, right:10 }}
+            style={styles.backCircle}
+          >
+            <Icon name="arrow-back-outline" size={28} color={COLORS.primary} />
+          </TouchableOpacity>
         </View>
         <AppText 
           variant="title" 
@@ -276,13 +279,24 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'android' ? SPACING.lg * 2 : SPACING.lg,
   },
   headerTop: {
-    marginBottom: SPACING.md,
+    marginTop: SPACING.xl,
   },
   backButton: { 
     backgroundColor: COLORS.lightBlue,
     width: 100,
     borderWidth: 1,
     borderColor: COLORS.transparent,
+  },
+  backCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.md,
+    alignSelf: 'flex-start',
+    ...SHADOWS.medium,
   },
   headerTitle: {
     fontWeight: 'bold',

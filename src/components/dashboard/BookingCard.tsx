@@ -19,7 +19,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking }) => {
     { name: 'star-outline', value: 4 },
   ];
   return (
-    <View style={[styles.card, { ...SHADOWS.medium }]}>
+    <View style={[styles.card, { ...SHADOWS.medium }]}> 
       <View style={styles.cardContent}>
         <Image source={{ uri: booking.image }} style={styles.image} />
         <View style={styles.info}>
@@ -32,7 +32,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking }) => {
           </AppText>
         </View>
       </View>
-
+      
       {booking.status === 'past' && (
         <>
           <View style={styles.divider} />

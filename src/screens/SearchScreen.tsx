@@ -18,6 +18,7 @@ import AppButton from "../components/AppButton";
 import BookingList from "../components/dashboard/BookingList";
 import { mockBookings } from "../data/mockBookings";
 import { COLORS, SIZES, SPACING, SHADOWS } from "../constaints/hotelTheme";
+import type { ScreenName } from "../types";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - 40 - 15) / 2;
@@ -38,7 +39,7 @@ interface Room {
   capacity?: number;
 }
 
-type ScreenName = "login" | "signup" | "search" | "booking" | "history" | "success" | "tabs";
+
 
 interface SearchScreenProps {
   user?: User;
@@ -105,26 +106,12 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
     return matchCapacity && matchName && matchPrice;
   }) : [];
 
-  // Handle room selection
+  // Handle room selection: chuyển sang BookingScreen
   const handleSelectRoom = (room: Room) => {
-    const callback = onSelectRoom || routeOnSelectRoom;
-    
-    console.log("handleSelectRoom called for:", room.name);
-    console.log("Callback exists:", !!callback);
-    console.log("Route OnSelectRoom:", !!routeOnSelectRoom);
-    console.log("Prop OnSelectRoom:", !!onSelectRoom);
-    
-    if (callback) {
-      console.log("Calling callback...");
-      callback(room, { capacity });
-    } else {
-      // Fallback: show alert if no callback
-      Alert.alert(
-        "Room Selected ✓",
-        `${room.name} selected for ${capacity || "any"} guest(s).\n\nPrice: $${room.price}/night`,
-        [{ text: "OK" }]
-      );
-    }
+    navigation.navigate('Booking', {
+      room,
+      searchData: { capacity },
+    });
   };
 
   return (
@@ -158,14 +145,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
             />
             <AppButton
               title="View History"
-              onPress={() => {
-                const navCallback = onNavigate || routeOnNavigate;
-                if (navCallback) {
-                  navCallback("history");
-                } else {
-                  navigation.navigate('MyBookings');
-                }
-              }}
+              onPress={() => navigation.navigate('History')}
               style={styles.historyButton}
             />
           </View>
