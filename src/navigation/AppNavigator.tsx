@@ -7,37 +7,7 @@ import HistoryScreen from "../screens/HistoryScreen";
 import SignupScreen from "../screens/SignupScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
-type ScreenName = "login" | "signup" | "search" | "booking" | "history" | "success" | "profile";
-
-interface User {
-  userID: string;
-  name: string;
-}
-
-interface Room {
-  id?: string | number;
-  name: string;
-  image?: string;
-  size?: string;
-  bed?: string;
-  view?: string;
-  price: number;
-  capacity: number;
-}
-
-interface BookingFormData {
-  name: string;
-  phone: string;
-  email: string;
-  checkIn: string;
-  checkOut: string;
-}
-
-interface BookingData {
-  room: Room;
-  formData: BookingFormData;
-  totalPrice: number;
-}
+import { Room, BookingData, ScreenName, User } from "../types";
 
 const AppNavigator: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenName>("login");
@@ -104,7 +74,16 @@ const AppNavigator: React.FC = () => {
       )}
 
       {currentScreen === "search" && currentUser && (
-        <SearchScreen user={currentUser} onSelectRoom={handleSelectRoom} onNavigate={setCurrentScreen} />
+        <SearchScreen
+          user={currentUser}
+          onSelectRoom={handleSelectRoom as (room: any, search: { capacity: string }) => void}
+          onNavigate={(screen) => {
+            // Only allow valid ScreenName values
+            if (["login", "signup", "search", "booking", "history", "success", "profile", "MyBookings"].includes(screen)) {
+              setCurrentScreen(screen as ScreenName);
+            }
+          }}
+        />
       )}
 
       {currentScreen === "booking" && selectedRoom && (
@@ -120,8 +99,12 @@ const AppNavigator: React.FC = () => {
         <HistoryScreen user={currentUser} onBack={() => setCurrentScreen("search")} />
       )}
 
-      {currentScreen === "profile" && currentUser && (
-        <ProfileScreen user={currentUser} onNavigate={setCurrentScreen} />
+      {currentScreen === "MyBookings" && currentUser && (
+        <ProfileScreen user={currentUser} onNavigate={(screen) => {
+          if (["login", "signup", "search", "booking", "history", "success", "MyBookings"].includes(screen)) {
+            setCurrentScreen(screen as ScreenName);
+          }
+        }} />
       )}
 
       {currentScreen === "success" && bookingData && (
