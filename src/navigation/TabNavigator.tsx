@@ -5,7 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLORS, SIZES, SHADOWS, SPACING } from '../constaints/hotelTheme';
 import SearchScreen from '../features/search/screens/SearchScreen';
 import UserProfileScreen from '../features/profile/screens/UserProfileScreen';
-import PlaceholderScreen from '../features/profile/screens/PlaceholderScreen';
+import MyBookingsScreen from '../features/booking/screens/MyBookingsScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -45,8 +45,8 @@ const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({ onSelectRoom, c
       component: SearchScreen,
     },
     {
-      name: 'Saved',
-      component: () => <PlaceholderScreen title="Saved" />,
+      name: 'MyBookings',
+      component: (props: any) => <MyBookingsScreen {...props} user={currentUser} />,
     },
     {
       name: 'Profile',
@@ -70,11 +70,8 @@ const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({ onSelectRoom, c
             case 'Search':
               iconName = 'search-outline';
               break;
-            case 'History':
-              iconName = 'time-outline';
-              break;
-            case 'Saved':
-              iconName = 'heart-outline';
+            case 'MyBookings':
+              iconName = 'calendar-outline';
               break;
             case 'Profile':
               iconName = 'person-outline';
@@ -105,8 +102,6 @@ const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({ onSelectRoom, c
           initialParams={
             tab.name === 'Search'
               ? { onSelectRoom, currentUser, onNavigate }
-              : tab.name === 'History'
-              ? { user: currentUser }
               : undefined
           }
           options={tab.props}
@@ -121,23 +116,23 @@ export default BottomTabNavigator;
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-    height: SIZES.base * 8, 
-    marginHorizontal: SPACING.xl, 
-    marginBottom: SPACING.md, 
+    height: SIZES.base * 8,
+    marginHorizontal: SPACING.xl,
+    marginBottom: SPACING.md,
     borderRadius: SIZES.base * 4,
     backgroundColor: COLORS.white,
     ...SHADOWS.medium,
   },
   tabBarLabel: {
-    fontSize: SIZES.body4, 
-    marginBottom: SIZES.base, 
+    fontSize: SIZES.body4,
+    marginBottom: SIZES.base,
     color: COLORS.text,
   },
   iconCircle: {
-    width: SIZES.base * 4 + 4, 
-    height: SIZES.base * 4 + 4, 
+    width: SIZES.base * 4 + 4,
+    height: SIZES.base * 4 + 4,
     borderRadius: (SIZES.base * 4 + 4) / 2,
-    backgroundColor: COLORS.border, 
+    backgroundColor: COLORS.border,
     justifyContent: 'center',
     alignItems: 'center',
   },

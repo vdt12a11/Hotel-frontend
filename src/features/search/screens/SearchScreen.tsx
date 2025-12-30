@@ -11,9 +11,11 @@ import {
   TouchableOpacity,
   StyleSheet
 } from "react-native";
+import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import BookingList from "../../../shared/components/dashboard/BookingList";
 import { mockBookings } from "../../../data/mockBookings";
+import { MOCK_ROOMS } from "../../../data/mockRooms";
 import { COLORS, SIZES, SPACING, SHADOWS } from "../../../constaints/hotelTheme";
 import type { ScreenName } from "../../../types";
 import { AppButton, AppInput, AppText } from "../../../shared/components";
@@ -51,7 +53,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
   const routeOnSelectRoom = route?.params?.onSelectRoom;
   const routeCurrentUser = route?.params?.currentUser;
   const routeOnNavigate = route?.params?.onNavigate;
-  
+
   const mockUser = { userID: '1', name: 'Guest User' };
   const currentUser = user || routeCurrentUser || mockUser;
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -61,20 +63,41 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
   const [showCapacityDropdown, setShowCapacityDropdown] = useState<boolean>(false);
   const [showPriceDropdown, setShowPriceDropdown] = useState<boolean>(false);
 
+  // Date picker states
+  const [checkIn, setCheckIn] = useState<Date>(new Date());
+  const [checkOut, setCheckOut] = useState<Date>(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow;
+  });
+  const [showCheckInPicker, setShowCheckInPicker] = useState<boolean>(false);
+  const [showCheckOutPicker, setShowCheckOutPicker] = useState<boolean>(false);
+
   const fetchRooms = async (): Promise<void> => {
-    try {
-      const res = await fetch("http://10.0.2.2:3000/room");
-      const data = await res.json();
-      if (!res.ok) {
-        Alert.alert("Lỗi", (data as { message?: string }).message || "Lay phong that bai");
-        return;
-      }
-      setRooms(data as Room[]);
-    } catch (err) {
-      console.log("Error fetching rooms:", err);
-    }
+    // Mock data strategy for Day 2 - No backend needed
+    console.log("Fetching rooms with mock data...");
+
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Use mock data from mockRooms.js
+    setRooms(MOCK_ROOMS as Room[]);
+
+    // Only show alert if user explicitly clicks search button
+    // Don't show on initial load
   };
 
+  const handleSearchClick = async (): Promise<void> => {
+    await fetchRooms();
+    Alert.alert("Thành công", `Đã tìm thấy ${MOCK_ROOMS.length} phòng phù hợp!`);
+  };
+
+  const handleReloadRooms = async (): Promise<void> => {
+    await fetchRooms();
+    Alert.alert("Đã tải lại", `Danh sách phòng đã được làm mới! Tìm thấy ${MOCK_ROOMS.length} phòng.`);
+  };
+
+  // Load rooms automatically on initial load
   useEffect(() => {
     fetchRooms();
   }, []);
@@ -137,7 +160,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
           <View style={[styles.buttonRow, { marginTop: SPACING.md }]}>
             <AppButton
               title="Reload Room"
-              onPress={fetchRooms}
+              onPress={handleReloadRooms}
               style={styles.reloadButton}
             />
             <AppButton
@@ -160,6 +183,60 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
             />
           </View>
 
+          {/* Date Pickers */}
+          <View style={[styles.row, { marginTop: SPACING.md, zIndex: 50 }]}>
+            <View style={[styles.col, { marginRight: SPACING.md }]}>
+              <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
+                Ngày nhận phòng
+              </AppText>
+              <TouchableOpacity
+                onPress={() => setShowCheckInPicker(true)}
+                style={[styles.dropdown, { backgroundColor: COLORS.lightGray, justifyContent: 'center' }]}
+              >
+                <AppText variant="body" color={COLORS.textDark}>
+                  {checkIn.toISOString().split("T")[0]}
+                </AppText>
+              </TouchableOpacity>
+              {showCheckInPicker && (
+                <DateTimePicker
+                  value={checkIn}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={(event: DateTimePickerEvent, selectedDate?: Date) => {
+                    setShowCheckInPicker(Platform.OS === "ios");
+                    if (selectedDate) setCheckIn(selectedDate);
+                  }}
+                  minimumDate={new Date()}
+                />
+              )}
+            </View>
+            <View style={styles.col}>
+              <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
+                Ngày trả phòng
+              </AppText>
+              <TouchableOpacity
+                onPress={() => setShowCheckOutPicker(true)}
+                style={[styles.dropdown, { backgroundColor: COLORS.lightGray, justifyContent: 'center' }]}
+              >
+                <AppText variant="body" color={COLORS.textDark}>
+                  {checkOut.toISOString().split("T")[0]}
+                </AppText>
+              </TouchableOpacity>
+              {showCheckOutPicker && (
+                <DateTimePicker
+                  value={checkOut}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={(event: DateTimePickerEvent, selectedDate?: Date) => {
+                    setShowCheckOutPicker(Platform.OS === "ios");
+                    if (selectedDate) setCheckOut(selectedDate);
+                  }}
+                  minimumDate={checkIn}
+                />
+              )}
+            </View>
+          </View>
+
           <View style={[styles.row, { marginTop: SPACING.md, zIndex: 100 }]}>
             <View style={[styles.col, { marginRight: SPACING.md, zIndex: showCapacityDropdown ? 2000 : 1 }]}>
               <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
@@ -178,7 +255,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
                 <AppText variant="caption">▼</AppText>
               </TouchableOpacity>
               {showCapacityDropdown && (
-                <View style={[styles.dropdownList, { ...SHADOWS.medium }]}>
+                <ScrollView style={[styles.dropdownList, { ...SHADOWS.medium }]} nestedScrollEnabled>
                   {["none", "1", "2", "3", "4"].map((c) => (
                     <TouchableOpacity
                       key={c}
@@ -193,7 +270,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
                       </AppText>
                     </TouchableOpacity>
                   ))}
-                </View>
+                </ScrollView>
               )}
             </View>
 
@@ -214,7 +291,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
                 <AppText variant="caption">▼</AppText>
               </TouchableOpacity>
               {showPriceDropdown && (
-                <View style={[styles.dropdownList, { ...SHADOWS.medium }]}>
+                <ScrollView style={[styles.dropdownList, { ...SHADOWS.medium }]} nestedScrollEnabled>
                   {["none", "100-200", "200-300", "300-500", ">500"].map((r) => (
                     <TouchableOpacity
                       key={r}
@@ -229,10 +306,26 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
                       </AppText>
                     </TouchableOpacity>
                   ))}
-                </View>
+                </ScrollView>
               )}
             </View>
           </View>
+
+          {/* Search Button */}
+          <AppButton
+            title="Tìm phòng"
+            onPress={handleSearchClick}
+            style={{
+              marginTop: SPACING.md,
+              alignSelf: 'stretch',
+              minWidth: 120,
+              paddingVertical: SPACING.md,
+              paddingHorizontal: SPACING.lg,
+              backgroundColor: COLORS.primary,
+              borderRadius: SIZES.radiusSmall,
+              marginLeft: 0,
+            }}
+          />
         </View>
 
         <BookingList bookings={mockBookings} />
@@ -297,18 +390,18 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingHorizontal: SIZES.padding, paddingTop: Platform.OS === "android" ? SPACING.lg*2 : SPACING.sm, justifyContent: "flex-start", paddingBottom: SPACING.lg },
+  header: { paddingHorizontal: SIZES.padding, paddingTop: Platform.OS === "android" ? SPACING.lg * 2 : SPACING.sm, justifyContent: "flex-start", paddingBottom: SPACING.lg },
   headerContent: { marginTop: SPACING.lg },
   buttonRow: { flexDirection: "row", marginTop: SPACING.md, gap: SPACING.md },
-  reloadButton: { flex: 1, paddingVertical: SPACING.md,backgroundColor: COLORS.lightBlue, borderWidth: 1, borderColor: COLORS.transparent },
+  reloadButton: { flex: 1, paddingVertical: SPACING.md, backgroundColor: COLORS.lightBlue, borderWidth: 1, borderColor: COLORS.transparent },
   historyButton: { flex: 1, paddingVertical: SPACING.md, backgroundColor: COLORS.lightBlue, borderWidth: 1, borderColor: COLORS.transparent },
-  scrollContent: { paddingHorizontal: SIZES.padding, paddingBottom: SPACING.xxl*2.5, paddingTop: SIZES.padding*2 },
+  scrollContent: { paddingHorizontal: SIZES.padding, paddingBottom: SPACING.xxl * 2.5, paddingTop: SIZES.padding * 2 },
   searchCard: { backgroundColor: COLORS.white, borderRadius: SIZES.radiusLarge, padding: SIZES.padding, marginTop: -SPACING.lg, marginBottom: SPACING.xl, zIndex: 10 },
   inputGroup: { marginBottom: SPACING.md },
   row: { flexDirection: "row" },
   col: { flex: 1 },
   dropdown: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: COLORS.border, borderRadius: SIZES.radiusSmall, paddingHorizontal: SPACING.md, height: SIZES.base * 5.5, backgroundColor: COLORS.white },
-  dropdownList: { position: "absolute", top: SIZES.base * 5.75, left: 0, right: 0, backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border, borderRadius: SIZES.radiusSmall, zIndex: 999, elevation: 10, maxHeight: 180, overflow: "hidden" },
+  dropdownList: { position: "absolute", top: SIZES.base * 5.75, left: 0, right: 0, backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border, borderRadius: SIZES.radiusSmall, zIndex: 999, elevation: 10, maxHeight: 250 },
   dropdownItem: { paddingVertical: SPACING.md, paddingHorizontal: SPACING.md },
   roomCard: { width: CARD_WIDTH, backgroundColor: COLORS.white, borderRadius: SIZES.radiusLarge, marginBottom: SPACING.lg, overflow: "hidden" },
   roomImage: { width: "100%", height: 120, resizeMode: "cover" },

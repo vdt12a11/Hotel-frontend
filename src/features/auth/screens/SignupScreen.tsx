@@ -41,30 +41,37 @@ export default function SignupScreen({
       return;
     }
 
-    const payload: SignupPayload = { name, email, phone, password };
+    // Mock signup - Day 2 strategy: No real backend
+    // Simulate successful registration
+    console.log("Mock Signup:", { name, email, phone, password });
 
-    try {
-      const res = await fetch("http://10.0.2.2:3000/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-      const data: SignupResponse = await res.json();
-      console.log("Signup response data:", data);
+    Alert.alert("Thành công", "Tạo tài khoản thành công!", [
+      { text: "OK", onPress: onBackToLogin }
+    ]);
 
-      if (!res.ok) {
-        Alert.alert("Lỗi", data.message || "Đăng ký thất bại");
-        return;
-      }
-
-      Alert.alert("Thành công", "Tạo tài khoản thành công!", [
-        { text: "OK", onPress: onBackToLogin }
-      ]);
-    } catch (error) {
-      console.log("Signup error:", error);
-      Alert.alert("Lỗi mạng", "Không thể kết nối tới server");
-    }
+    // Original backend code (commented out for Day 2)
+    // const payload: SignupPayload = { name, email, phone, password };
+    // try {
+    //   const res = await fetch("http://10.0.2.2:3000/register", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify(payload)
+    //   });
+    //   const data: SignupResponse = await res.json();
+    //   if (!res.ok) {
+    //     Alert.alert("Lỗi", data.message || "Đăng ký thất bại");
+    //     return;
+    //   }
+    //   Alert.alert("Thành công", "Tạo tài khoản thành công!", [
+    //     { text: "OK", onPress: onBackToLogin }
+    //   ]);
+    // } catch (error) {
+    //   console.log("Signup error:", error);
+    //   Alert.alert("Lỗi mạng", "Không thể kết nối tới server");
+    // }
   };
 
   return (
@@ -134,7 +141,7 @@ export default function SignupScreen({
             title="Sign Up"
             onPress={handleSignup}
             fullWidth
-            
+
             style={{ marginTop: SIZES.padding }}
           />
         </View>

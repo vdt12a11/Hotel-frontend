@@ -67,7 +67,7 @@ const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfi
       return;
     }
     if (!phone || !email || !name) {
-      Alert.alert("Thiếu thông tin", "Vui lòng nhập đủ số điện thoại và email vaf tên!");
+      Alert.alert("Thiếu thông tin", "Vui lòng nhập đủ số điện thoại, email và tên!");
       return;
     }
     if (!isValidEmail(email)) {

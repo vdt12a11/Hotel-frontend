@@ -4,6 +4,7 @@ import AppText from "../../../shared/components/AppText";
 import AppButton from "../../../shared/components/AppButton";
 import Icon from 'react-native-vector-icons/Ionicons';
 import { COLORS, SIZES, SPACING, SHADOWS } from '../../../constaints/hotelTheme';
+import { mockBookings } from '../../../data/mockBookings';
 
 interface User {
   userID: string;
@@ -49,15 +50,44 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
   const fetchHistory = async (): Promise<void> => {
     try {
       setLoading(true);
-      const res = await fetch(`http://10.0.2.2:3000/history/${user.userID}`);
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error((data as { message?: string }).message || 'Get history failed');
-      }
-      console.log(data);
-      setHistory(data as BookingRecord[]);
+
+      // Mock data strategy for Day 2 - No backend needed
+      console.log("Loading booking history from mock data...");
+
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Convert mock bookings to BookingRecord format
+      const mockHistoryData: BookingRecord[] = mockBookings.map((booking: any, index: number) => ({
+        _id: booking.id || String(index),
+        room: {
+          name: booking.hotelName,
+          price: 150 // Default price for display
+        },
+        formData: {
+          name: 'Guest User',
+          checkIn: booking.date.split(' - ')[0],
+          checkOut: booking.date.split(' - ')[1] || booking.date
+        },
+        createdAt: new Date().toISOString(),
+        status: booking.status === 'past' ? 'Completed' : 'Upcoming',
+        totalPrice: 150
+      }));
+
+      setHistory(mockHistoryData);
+      console.log('Booking history loaded:', mockHistoryData.length);
+
+      // Original API code (commented out for Day 2)
+      // const res = await fetch(`http://10.0.2.2:3000/history/${user.userID}`);
+      // const data = await res.json();
+      // if (!res.ok) {
+      //   throw new Error((data as { message?: string }).message || 'Get history failed');
+      // }
+      // setHistory(data as BookingRecord[]);
     } catch (error) {
-      console.log('Lỗi lấy lịch sử:', error);
+      console.log('Error loading booking history:', error);
+      // Use empty array as fallback
+      setHistory([]);
     } finally {
       setLoading(false);
     }
@@ -98,10 +128,10 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric' 
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
       });
     } catch {
       return dateString;
@@ -113,9 +143,9 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
       {/* Header: Room Name + Status */}
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
-          <AppText 
-            variant="subtitle" 
-            color={COLORS.textDark} 
+          <AppText
+            variant="subtitle"
+            color={COLORS.textDark}
             style={styles.roomName}
             numberOfLines={2}
           >
@@ -123,9 +153,9 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
           </AppText>
         </View>
         <View style={[styles.statusBadge, { backgroundColor: getStatusBgColor(item.status) }]}>
-          <AppText 
-            variant="body" 
-            color={getStatusColor(item.status)} 
+          <AppText
+            variant="body"
+            color={getStatusColor(item.status)}
             style={styles.statusText}
           >
             {item.status}
@@ -139,9 +169,9 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
           <AppText variant="caption" color={COLORS.textLight}>
             👤 Guest
           </AppText>
-          <AppText 
-            variant="body" 
-            color={COLORS.textDark} 
+          <AppText
+            variant="body"
+            color={COLORS.textDark}
             style={{ fontWeight: '600' }}
           >
             {item.formData.name}
@@ -153,9 +183,9 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
             <AppText variant="caption" color={COLORS.textLight}>
               📅 Dates
             </AppText>
-            <AppText 
-              variant="body" 
-              color={COLORS.textDark} 
+            <AppText
+              variant="body"
+              color={COLORS.textDark}
               style={{ fontWeight: '500' }}
             >
               {formatDate(item.formData.checkIn)} → {formatDate(item.formData.checkOut)}
@@ -167,9 +197,9 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
           <AppText variant="caption" color={COLORS.textLight}>
             📅 Booked on
           </AppText>
-          <AppText 
-            variant="body" 
-            color={COLORS.textDark} 
+          <AppText
+            variant="body"
+            color={COLORS.textDark}
             style={{ fontWeight: '500' }}
           >
             {formatDate(item.createdAt)}
@@ -183,9 +213,9 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
           <AppText variant="caption" color={COLORS.textLight}>
             Price per night
           </AppText>
-          <AppText 
-            variant="body" 
-            color={COLORS.primary} 
+          <AppText
+            variant="body"
+            color={COLORS.primary}
             style={{ fontWeight: 'bold', fontSize: SIZES.body1 }}
           >
             ${item.room.price}
@@ -196,9 +226,9 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
             <AppText variant="caption" color={COLORS.textLight}>
               Total
             </AppText>
-            <AppText 
-              variant="body" 
-              color={COLORS.primary} 
+            <AppText
+              variant="body"
+              color={COLORS.primary}
               style={{ fontWeight: '700', fontSize: SIZES.h4 }}
             >
               ${item.totalPrice}
@@ -212,27 +242,27 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: COLORS.background }]}>
       <StatusBar backgroundColor={COLORS.primary} barStyle="light-content" />
-      
+
       {/* Header */}
       <View style={[styles.header, { backgroundColor: COLORS.primary, paddingHorizontal: responsive.headerPaddingH }]}>
         <View style={styles.headerTop}>
           <TouchableOpacity
             onPress={onBack}
-            hitSlop={{top:10, left:10, right:10 }}
+            hitSlop={{ top: 10, left: 10, right: 10 }}
             style={styles.backCircle}
           >
             <Icon name="arrow-back-outline" size={28} color={COLORS.primary} />
           </TouchableOpacity>
         </View>
-        <AppText 
-          variant="title" 
+        <AppText
+          variant="title"
           color={COLORS.white}
           style={styles.headerTitle}
         >
           Booking History
         </AppText>
-        <AppText 
-          variant="body" 
+        <AppText
+          variant="body"
           color={COLORS.primaryLight}
           style={{ marginTop: SPACING.xs }}
         >
@@ -274,14 +304,14 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { 
+  header: {
     paddingVertical: SPACING.lg,
     paddingTop: Platform.OS === 'android' ? SPACING.lg * 2 : SPACING.lg,
   },
   headerTop: {
     marginTop: SPACING.xl,
   },
-  backButton: { 
+  backButton: {
     backgroundColor: COLORS.lightBlue,
     width: 100,
     borderWidth: 1,
@@ -308,13 +338,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  emptyContainer: { 
+  emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
   },
-  listContent: { 
+  listContent: {
     paddingBottom: SPACING.xxl,
     paddingTop: SPACING.lg,
   },
