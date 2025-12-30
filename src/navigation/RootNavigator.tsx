@@ -87,7 +87,6 @@ const RootNavigator: React.FC<RootNavigatorProps> = ({ user, onLogin, onLogout }
                             />
                         )}
                     </Stack.Screen>
-<<<<<<< HEAD
                     <Stack.Screen name="RoomDetail">
                         {(props: any) => {
                             const { room } = (props.route.params as any) || {};
@@ -103,9 +102,6 @@ const RootNavigator: React.FC<RootNavigatorProps> = ({ user, onLogin, onLogout }
                         }}
                     </Stack.Screen>
 
-=======
-                    
->>>>>>> 90ca4926ac4bf075a4889fc636ed980b80119dc6
                     <Stack.Group screenOptions={{ presentation: 'modal' }}>
                         <Stack.Screen name="Booking">
                             {(props: any) => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, useWindowDimensions, StatusBar, Platform } from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, useWindowDimensions, StatusBar, Platform, Image } from 'react-native';
 import AppText from "../../../shared/components/AppText";
 import AppButton from "../../../shared/components/AppButton";
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -139,7 +139,13 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
   };
 
   const renderItem = ({ item }: { item: BookingRecord }) => (
-    <View style={[styles.card, { ...SHADOWS.medium }]}> 
+    <View style={[styles.card, { ...SHADOWS.medium }]}>
+      {/* Image */}
+      <Image
+        source={{ uri: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=250&fit=crop' }}
+        style={styles.cardImage}
+      />
+
       {/* Header: Room Name + Status */}
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
@@ -152,17 +158,10 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
             {item.room?.name || 'No name'}
           </AppText>
         </View>
-<<<<<<< HEAD
         <View style={[styles.statusBadge, { backgroundColor: getStatusBgColor(item.status) }]}>
           <AppText
             variant="body"
             color={getStatusColor(item.status)}
-=======
-        <View style={[styles.statusBadge, { backgroundColor: getStatusBgColor(item.status) }]}> 
-          <AppText 
-            variant="body" 
-            color={getStatusColor(item.status)} 
->>>>>>> 90ca4926ac4bf075a4889fc636ed980b80119dc6
             style={styles.statusText}
           >
             {item.status}
@@ -358,9 +357,14 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.white,
     borderRadius: SIZES.radiusLarge,
-    padding: SPACING.lg,
-    marginBottom: SPACING.lg,
     overflow: 'hidden',
+    marginBottom: SPACING.lg,
+  },
+  cardImage: {
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+    backgroundColor: COLORS.lightGray,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -368,6 +372,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: SPACING.lg,
     gap: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.lg,
   },
   roomName: {
     fontWeight: '700',
@@ -390,6 +396,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
     marginBottom: SPACING.lg,
     gap: SPACING.md,
+    paddingHorizontal: SPACING.lg,
   },
   infoRow: {
     flexDirection: 'row',
@@ -400,6 +407,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.lg,
   },
   totalPriceBox: {
     backgroundColor: COLORS.primaryLight,

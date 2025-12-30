@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, Image } from 'react-native';
+import { View, FlatList, StyleSheet, Image, SafeAreaView, StatusBar, Platform, ScrollView } from 'react-native';
 import { COLORS, SIZES, SPACING, SHADOWS } from '../../../constaints/hotelTheme';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { User, BookingHistoryItem } from '../../../types';
@@ -55,29 +55,62 @@ const MyBookingsScreen: React.FC<MyBookingsScreenProps> = ({ user }) => {
   );
 
   const renderItem = ({ item }: { item: BookingHistoryItem }) => (
-    <View style={[styles.card, { ...SHADOWS.light }]}>
-      <View style={{ flexDirection: 'row', marginBottom: SPACING.sm }}>
-        <Image
-          source={{ uri: item.room.image || "https://via.placeholder.com/100" }}
-          style={{ width: 80, height: 80, borderRadius: SIZES.radiusSmall, marginRight: SPACING.md }}
-        />
-        <View style={{ flex: 1, justifyContent: 'center' }}>
-          <AppText variant="body" style={{ fontWeight: "600" }}>{item.room.name}</AppText>
-          <AppText variant="caption" color={COLORS.textLight}>{item.formData.checkIn} - {item.formData.checkOut}</AppText>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-            <View style={[styles.badge, { backgroundColor: COLORS.secondary }]}>
-              <AppText variant="caption" style={{ color: COLORS.white, fontSize: 10 }}>SẮP TỚI</AppText>
-            </View>
+    <View style={[styles.card, { ...SHADOWS.medium }]}>
+      {/* Card Image */}
+      <Image
+        source={{ uri: item.room.image || "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=200&fit=crop" }}
+        style={styles.cardImage}
+      />
+
+      {/* Card Content */}
+      <View style={styles.cardContent}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: SPACING.md }}>
+          <View style={{ flex: 1 }}>
+            <AppText variant="subtitle" style={{ fontWeight: "700", marginBottom: SPACING.xs }}>{item.room.name}</AppText>
+            <AppText variant="caption" color={COLORS.textLight}>📅 {item.formData.checkIn} → {item.formData.checkOut}</AppText>
           </View>
+          <View style={[styles.badge, { backgroundColor: COLORS.success }]}>
+            <AppText variant="caption" style={{ color: COLORS.white, fontSize: 10, fontWeight: '600' }}>SẮP TỚI</AppText>
+          </View>
+        </View>
+
+        {/* Room Details */}
+        <View style={styles.detailsRow}>
+          <View style={styles.detailItem}>
+            <Icon name="bed-outline" size={16} color={COLORS.primary} />
+            <AppText variant="caption" color={COLORS.textLight} style={{ marginLeft: SPACING.xs }}>
+              {item.room.bed}
+            </AppText>
+          </View>
+          <View style={styles.detailItem}>
+            <Icon name="eye-outline" size={16} color={COLORS.primary} />
+            <AppText variant="caption" color={COLORS.textLight} style={{ marginLeft: SPACING.xs }}>
+              {item.room.view}
+            </AppText>
+          </View>
+        </View>
+
+        {/* Price */}
+        <View style={{ marginTop: SPACING.md, paddingTop: SPACING.md, borderTopWidth: 1, borderTopColor: COLORS.border }}>
+          <AppText variant="caption" color={COLORS.textLight}>Giá mỗi đêm</AppText>
+          <AppText variant="body" style={{ color: COLORS.primary, fontWeight: 'bold', fontSize: SIZES.h4 }}>
+            ${item.room.price.toLocaleString()}
+          </AppText>
         </View>
       </View>
     </View>
   );
 
   return (
-    <ScreenContainer withScroll={false}>
-      <View style={styles.header}>
-        <AppText variant="title">Chuyến đi</AppText>
+    <SafeAreaView style={[styles.container, { backgroundColor: COLORS.screenBackGround }]}>
+      <StatusBar backgroundColor={COLORS.primary} barStyle="light-content" />
+
+      {/* Header */}
+      <View style={[styles.header, { backgroundColor: COLORS.primary }]}>
+        <AppText variant="title" color={COLORS.white} style={{ fontWeight: 'bold' }}>Chuyến đi</AppText>
+        <AppText variant="body" color={COLORS.primaryLight} style={{ marginTop: SPACING.xs }}>
+          Các chuyến đi sắp tới của bạn
+        </AppText>
       </View>
 
       {upcomingBookings.length === 0 ? (
@@ -88,38 +121,60 @@ const MyBookingsScreen: React.FC<MyBookingsScreenProps> = ({ user }) => {
           renderItem={renderItem}
           keyExtractor={(item) => item._id}
           contentContainerStyle={styles.listContent}
+          scrollEnabled={true}
         />
       )}
-    </ScreenContainer>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   header: {
-    marginBottom: SPACING.lg,
     paddingHorizontal: SIZES.padding,
-    paddingTop: SIZES.padding,
+    paddingVertical: SPACING.lg,
+    paddingTop: Platform.OS === 'android' ? SPACING.lg * 2 : SPACING.lg,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 100, // Push down a bit
+    marginTop: 100,
   },
   listContent: {
     paddingHorizontal: SIZES.padding,
-    paddingBottom: SIZES.padding,
+    paddingVertical: SPACING.lg,
+    paddingBottom: SPACING.xxl,
   },
   card: {
     backgroundColor: COLORS.white,
-    padding: SPACING.md,
-    borderRadius: SIZES.radius,
-    marginBottom: SPACING.md,
+    borderRadius: SIZES.radiusLarge,
+    marginBottom: SPACING.lg,
+    overflow: 'hidden',
+  },
+  cardImage: {
+    width: '100%',
+    height: 180,
+    resizeMode: 'cover',
+    backgroundColor: COLORS.lightGray,
+  },
+  cardContent: {
+    padding: SPACING.lg,
+  },
+  detailsRow: {
+    flexDirection: 'row',
+    gap: SPACING.lg,
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 6,
+    borderRadius: SIZES.radiusSmall,
   }
 });
 
