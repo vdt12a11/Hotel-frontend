@@ -85,7 +85,7 @@ const RootNavigator: React.FC<RootNavigatorProps> = ({ user, onLogin, onLogout }
                             />
                         )}
                     </Stack.Screen>
-
+                    
                     <Stack.Group screenOptions={{ presentation: 'modal' }}>
                         <Stack.Screen name="Booking">
                             {(props: any) => {

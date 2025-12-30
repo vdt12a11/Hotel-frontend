@@ -21,9 +21,10 @@ interface BookingScreenProps {
   searchData: { capacity: string } | null;
   onConfirm: (booking: BookingData) => void;
   onBack: () => void;
+  userID?: string; // Add userID as optional prop
 }
 
-const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfirm, onBack }) => {
+const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfirm, onBack, userID }) => {
   const [name, setName] = useState<string>("");
   const [checkIn, setCheckIn] = useState<Date>(new Date());
   const [checkOut, setCheckOut] = useState<Date>(() => {
@@ -61,7 +62,8 @@ const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfi
     return regex.test(val);
   };
 
-  const handleConfirm = (): void => {
+  const handleConfirm = async (): Promise<void> => {
+    console.log("room object:", room);
     if (checkOut <= checkIn) {
       Alert.alert("Ngày không hợp lệ", "Ngày trả phòng phải sau ngày nhận phòng. Vui lòng chọn lại!");
       return;
@@ -78,12 +80,32 @@ const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfi
     const strCheckIn = formatDate(checkIn);
     const strCheckOut = formatDate(checkOut);
     const nights = calculateNights(strCheckIn, strCheckOut);
-
-    onConfirm({
-      room,
+    const bookingData = {
+      room: room._id,
       formData: { name, phone, email, checkIn: strCheckIn, checkOut: strCheckOut },
-      totalPrice: nights * room.price
-    });
+      totalPrice: nights * room.price,
+      userID: userID || "guest",
+      date: new Date().toISOString()
+    };
+    try {
+      const res = await fetch("http://10.0.2.2:3000/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookingData)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        onConfirm({
+          room,
+          formData: { name, phone, email, checkIn: strCheckIn, checkOut: strCheckOut },
+          totalPrice: nights * room.price
+        });
+      } else {
+        Alert.alert("Lỗi", data.message || "Đặt phòng thất bại");
+      }
+    } catch (err) {
+      Alert.alert("Lỗi", "Không thể kết nối tới máy chủ");
+    }
   };
 
   const strCheckIn = formatDate(checkIn);

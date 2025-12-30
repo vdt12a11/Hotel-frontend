@@ -3,15 +3,28 @@ import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { COLORS, SIZES, SPACING, SHADOWS } from '../../../constaints/hotelTheme';
-import { Booking } from '../../../data/mockBookings';
 import BookingStatusBadge from './BookingStatusBadge';
 import AppText from '../AppText';
 
 interface BookingCardProps {
-  booking: Booking;
+  booking: {
+    id: string;
+    hotelName: string;
+    image: string;
+    date: string; // e.g. '2025-12-30 - 2026-01-01' or '2025-12-30'
+    status?: string;
+  };
 }
-
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth() + 1).padStart(2, '0');
+const dd = String(today.getDate()).padStart(2, '0');
+const todayStr = `${yyyy}-${mm}-${dd}`;
+console.log(todayStr); // Sẽ ra đúng ngày local, ví dụ: "2025-12-30"
 const BookingCard: React.FC<BookingCardProps> = ({ booking }) => {
+  console.log('BookingCard booking:', booking);
+  console.log('BookingCard hotelName:', booking.hotelName);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const ratingIcons = [
     { name: 'sad-outline', value: 1 },
@@ -19,22 +32,37 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking }) => {
     { name: 'heart-outline', value: 3 },
     { name: 'star-outline', value: 4 },
   ];
+  // Determine status based on check-in date
+  let computedStatus: 'past' | 'upcoming' = 'upcoming';
+  // Extract check-in date from booking.date (format: 'YYYY-MM-DD - YYYY-MM-DD' or 'YYYY-MM-DD')
+  let checkInDateStr = booking.date?.split(' - ')[0];
+  if (checkInDateStr) {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const checkInDate = new Date(checkInDateStr);
+    checkInDate.setHours(0,0,0,0);
+    if (checkInDate < today) {
+      computedStatus = 'past';
+    } else {
+      computedStatus = 'upcoming';
+    }
+  }
   return (
     <View style={[styles.card, { ...SHADOWS.medium }]}> 
       <View style={styles.cardContent}>
-        <Image source={{ uri: booking.image }} style={styles.image} />
+              <Image source={{ uri: booking.image || 'https://via.placeholder.com/80' }} style={styles.image} />
         <View style={styles.info}>
-          <BookingStatusBadge status={booking.status} />
-          <AppText variant="body" color={COLORS.textDark} style={styles.hotelName} numberOfLines={1}>
-            {booking.hotelName}
-          </AppText>
-          <AppText variant="caption" color={COLORS.textLight} style={styles.date}>
-            {booking.date}
-          </AppText>
+          <BookingStatusBadge status={computedStatus} />
+                <AppText variant="body" color={COLORS.textDark} style={styles.hotelName} numberOfLines={1}>
+                  {booking.hotelName || 'No name'}
+                </AppText>
+                <AppText variant="caption" color={COLORS.textLight} style={styles.date}>
+                  {booking.date || ''}
+                </AppText>
         </View>
       </View>
       
-      {booking.status === 'past' && (
+      {computedStatus === 'past' && (
         <>
           <View style={styles.divider} />
           <View style={styles.footer}>

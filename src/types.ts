@@ -5,6 +5,7 @@ export interface User {
 }
 
 export interface Room {
+    _id?: string; // MongoDB ObjectId
     id?: string | number;
     name: string;
     image?: string;
