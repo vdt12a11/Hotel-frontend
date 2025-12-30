@@ -11,9 +11,11 @@ import {
   TouchableOpacity,
   StyleSheet
 } from "react-native";
+import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import BookingList from "../../../shared/components/dashboard/BookingList";
 import { mockBookings } from "../../../data/mockBookings";
+import { fetchAvailableRooms } from '../services/roomSearchService';
 import { COLORS, SIZES, SPACING, SHADOWS } from "../../../constaints/hotelTheme";
 import type { ScreenName } from "../../../types";
 import { AppButton, AppInput, AppText } from "../../../shared/components";
@@ -31,6 +33,7 @@ interface Room {
   name: string;
   image: string;
   size: string;
+  amenities?: string[]; // Added amenities for future use
   bed: string;
   view: string;
   price: number;
@@ -51,7 +54,16 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
   const routeOnSelectRoom = route?.params?.onSelectRoom;
   const routeCurrentUser = route?.params?.currentUser;
   const routeOnNavigate = route?.params?.onNavigate;
-  
+
+  const [checkIn, setCheckIn] = useState<Date>(new Date());
+  const [checkOut, setCheckOut] = useState<Date>(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow;
+  });
+  const [showCheckInPicker, setShowCheckInPicker] = useState<boolean>(false);
+  const [showCheckOutPicker, setShowCheckOutPicker] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const mockUser = { userID: '1', name: 'Guest User' };
   const currentUser = user || routeCurrentUser || mockUser;
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -152,7 +164,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={[styles.searchCard, { ...SHADOWS.medium }]}>
-          <View style={styles.inputGroup}>
+          <View>
             <AppInput
               label="Room Name"
               placeholder="Nhập tên phòng..."
@@ -161,7 +173,54 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
             />
           </View>
 
-          <View style={[styles.row, { marginTop: SPACING.md, zIndex: 100 }]}>
+          <View style={styles.dateRow}>
+            <View style={styles.dateCol}>
+              <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
+                Ngày nhận phòng
+              </AppText>
+              <TouchableOpacity onPress={() => setShowCheckInPicker(true)} style={[styles.dateInput, { backgroundColor: COLORS.lightGray, justifyContent: 'center', paddingHorizontal: SPACING.md }]}>
+                <AppText variant="body" color={COLORS.textDark}>
+                  {checkIn.toISOString().split("T")[0]}
+                </AppText>
+              </TouchableOpacity>
+              {showCheckInPicker && (
+                <DateTimePicker
+                  value={checkIn}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={(event: DateTimePickerEvent, selectedDate?: Date) => {
+                    setShowCheckInPicker(Platform.OS === "ios");
+                    if (selectedDate) setCheckIn(selectedDate);
+                  }}
+                  minimumDate={new Date()}
+                />
+              )}
+            </View>
+            <View style={styles.dateCol}>
+              <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
+                Ngày trả phòng
+              </AppText>
+              <TouchableOpacity onPress={() => setShowCheckOutPicker(true)} style={[styles.dateInput, { backgroundColor: COLORS.lightGray, justifyContent: 'center', paddingHorizontal: SPACING.md }]}>
+                <AppText variant="body" color={COLORS.textDark}>
+                  {checkOut.toISOString().split("T")[0]}
+                </AppText>
+              </TouchableOpacity>
+              {showCheckOutPicker && (
+                <DateTimePicker
+                  value={checkOut}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  onChange={(event: DateTimePickerEvent, selectedDate?: Date) => {
+                    setShowCheckOutPicker(Platform.OS === "ios");
+                    if (selectedDate) setCheckOut(selectedDate);
+                  }}
+                  minimumDate={checkIn}
+                />
+              )}
+            </View>
+          </View>
+
+          <View style={[styles.row, { zIndex: 100 }]}>
             <View style={[styles.col, { marginRight: SPACING.md, zIndex: showCapacityDropdown ? 2000 : 1 }]}>
               <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
                 Capacity
@@ -234,6 +293,20 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
               )}
             </View>
           </View>
+          <AppButton
+            title="Tìm phòng"
+            onPress={() => { }}
+            style={{
+              marginTop: SPACING.md,
+              alignSelf: 'stretch',
+              minWidth: 120,
+              paddingVertical: SPACING.md,
+              paddingHorizontal: SPACING.lg,
+              backgroundColor: COLORS.primary,
+              borderRadius: SIZES.radiusSmall,
+              marginLeft: 0,
+            }}
+          />
         </View>
 
         <BookingList bookings={mockBookings} />
@@ -298,14 +371,16 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingHorizontal: SIZES.padding, paddingTop: Platform.OS === "android" ? SPACING.lg*2 : SPACING.sm, justifyContent: "flex-start", paddingBottom: SPACING.lg },
+  header: { paddingHorizontal: SIZES.padding, paddingTop: Platform.OS === "android" ? SPACING.lg * 2 : SPACING.sm, justifyContent: "flex-start", paddingBottom: SPACING.lg },
   headerContent: { marginTop: SPACING.lg },
   buttonRow: { flexDirection: "row", marginTop: SPACING.md, gap: SPACING.md },
-  reloadButton: { flex: 1, paddingVertical: SPACING.md,backgroundColor: COLORS.lightBlue, borderWidth: 1, borderColor: COLORS.transparent },
+  reloadButton: { flex: 1, paddingVertical: SPACING.md, backgroundColor: COLORS.lightBlue, borderWidth: 1, borderColor: COLORS.transparent },
   historyButton: { flex: 1, paddingVertical: SPACING.md, backgroundColor: COLORS.lightBlue, borderWidth: 1, borderColor: COLORS.transparent },
-  scrollContent: { paddingHorizontal: SIZES.padding, paddingBottom: SPACING.xxl*2.5, paddingTop: SIZES.padding*2 },
+  scrollContent: { paddingHorizontal: SIZES.padding, paddingBottom: SPACING.xxl * 2.5, paddingTop: SIZES.padding * 2 },
   searchCard: { backgroundColor: COLORS.white, borderRadius: SIZES.radiusLarge, padding: SIZES.padding, marginTop: -SPACING.lg, marginBottom: SPACING.xl, zIndex: 10 },
-  inputGroup: { marginBottom: SPACING.md },
+  dateRow: { flexDirection: 'row', gap: SPACING.md },
+  dateCol: { flex: 1 },
+  dateInput: { height: SIZES.base * 5.5, borderWidth: 1, borderRadius: SIZES.radiusSmall, borderColor: COLORS.border },
   row: { flexDirection: "row" },
   col: { flex: 1 },
   dropdown: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: COLORS.border, borderRadius: SIZES.radiusSmall, paddingHorizontal: SPACING.md, height: SIZES.base * 5.5, backgroundColor: COLORS.white },

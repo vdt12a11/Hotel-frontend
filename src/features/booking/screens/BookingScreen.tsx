@@ -177,7 +177,7 @@ const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfi
               mode="date"
               display={Platform.OS === "ios" ? "spinner" : "default"}
               onChange={onChangeCheckOut}
-              minimumDate={new Date()}
+              minimumDate={checkIn}
             />
           )}
 
