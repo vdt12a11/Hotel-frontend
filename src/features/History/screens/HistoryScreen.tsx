@@ -139,7 +139,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
   };
 
   const renderItem = ({ item }: { item: BookingRecord }) => (
-    <View style={[styles.card, { ...SHADOWS.medium }]}>
+    <View style={[styles.card, { ...SHADOWS.medium }]}> 
       {/* Header: Room Name + Status */}
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
@@ -149,13 +149,20 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
             style={styles.roomName}
             numberOfLines={2}
           >
-            {item.room.name}
+            {item.room?.name || 'No name'}
           </AppText>
         </View>
+<<<<<<< HEAD
         <View style={[styles.statusBadge, { backgroundColor: getStatusBgColor(item.status) }]}>
           <AppText
             variant="body"
             color={getStatusColor(item.status)}
+=======
+        <View style={[styles.statusBadge, { backgroundColor: getStatusBgColor(item.status) }]}> 
+          <AppText 
+            variant="body" 
+            color={getStatusColor(item.status)} 
+>>>>>>> 90ca4926ac4bf075a4889fc636ed980b80119dc6
             style={styles.statusText}
           >
             {item.status}
@@ -218,7 +225,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
             color={COLORS.primary}
             style={{ fontWeight: 'bold', fontSize: SIZES.body1 }}
           >
-            ${item.room.price}
+            {item.room?.price !== undefined ? `$${item.room.price}` : '--'}
           </AppText>
         </View>
         {item.totalPrice && (
