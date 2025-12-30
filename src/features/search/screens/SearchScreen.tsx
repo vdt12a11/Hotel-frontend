@@ -15,7 +15,7 @@ import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/dat
 import { useRoute, useNavigation } from "@react-navigation/native";
 import BookingList from "../../../shared/components/dashboard/BookingList";
 import { mockBookings } from "../../../data/mockBookings";
-import { fetchAvailableRooms } from '../services/roomSearchService';
+import { MOCK_ROOMS } from "../../../data/mockRooms";
 import { COLORS, SIZES, SPACING, SHADOWS } from "../../../constaints/hotelTheme";
 import type { ScreenName } from "../../../types";
 import { AppButton, AppInput, AppText } from "../../../shared/components";
@@ -55,6 +55,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
   const routeCurrentUser = route?.params?.currentUser;
   const routeOnNavigate = route?.params?.onNavigate;
 
+<<<<<<< HEAD
   const [checkIn, setCheckIn] = useState<Date>(new Date());
   const [checkOut, setCheckOut] = useState<Date>(() => {
     const tomorrow = new Date();
@@ -64,6 +65,8 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
   const [showCheckInPicker, setShowCheckInPicker] = useState<boolean>(false);
   const [showCheckOutPicker, setShowCheckOutPicker] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
+=======
+>>>>>>> Tin
   const mockUser = { userID: '1', name: 'Guest User' };
   const currentUser = user || routeCurrentUser || mockUser;
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -73,20 +76,41 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
   const [showCapacityDropdown, setShowCapacityDropdown] = useState<boolean>(false);
   const [showPriceDropdown, setShowPriceDropdown] = useState<boolean>(false);
 
+  // Date picker states
+  const [checkIn, setCheckIn] = useState<Date>(new Date());
+  const [checkOut, setCheckOut] = useState<Date>(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow;
+  });
+  const [showCheckInPicker, setShowCheckInPicker] = useState<boolean>(false);
+  const [showCheckOutPicker, setShowCheckOutPicker] = useState<boolean>(false);
+
   const fetchRooms = async (): Promise<void> => {
-    try {
-      const res = await fetch("http://10.0.2.2:3000/room");
-      const data = await res.json();
-      if (!res.ok) {
-        Alert.alert("Lỗi", (data as { message?: string }).message || "Lay phong that bai");
-        return;
-      }
-      setRooms(data as Room[]);
-    } catch (err) {
-      console.log("Error fetching rooms:", err);
-    }
+    // Mock data strategy for Day 2 - No backend needed
+    console.log("Fetching rooms with mock data...");
+
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Use mock data from mockRooms.js
+    setRooms(MOCK_ROOMS as Room[]);
+
+    // Only show alert if user explicitly clicks search button
+    // Don't show on initial load
   };
 
+  const handleSearchClick = async (): Promise<void> => {
+    await fetchRooms();
+    Alert.alert("Thành công", `Đã tìm thấy ${MOCK_ROOMS.length} phòng phù hợp!`);
+  };
+
+  const handleReloadRooms = async (): Promise<void> => {
+    await fetchRooms();
+    Alert.alert("Đã tải lại", `Danh sách phòng đã được làm mới! Tìm thấy ${MOCK_ROOMS.length} phòng.`);
+  };
+
+  // Load rooms automatically on initial load
   useEffect(() => {
     fetchRooms();
   }, []);
@@ -116,11 +140,10 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
     return matchCapacity && matchName && matchPrice;
   }) : [];
 
-  // Handle room selection: chuyển sang BookingScreen
+  // Handle room selection: chuyển sang RoomDetailScreen
   const handleSelectRoom = (room: Room) => {
-    navigation.navigate('Booking', {
+    navigation.navigate('RoomDetail', {
       room,
-      searchData: { capacity },
     });
   };
 
@@ -150,7 +173,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
           <View style={[styles.buttonRow, { marginTop: SPACING.md }]}>
             <AppButton
               title="Reload Room"
-              onPress={fetchRooms}
+              onPress={handleReloadRooms}
               style={styles.reloadButton}
             />
             <AppButton
@@ -173,199 +196,237 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
             />
           </View>
 
-          <View style={styles.dateRow}>
-            <View style={styles.dateCol}>
-              <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
-                Ngày nhận phòng
+<<<<<<< HEAD
+  <View style={styles.dateRow}>
+    <View style={styles.dateCol}>
+      <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
+        Ngày nhận phòng
+      </AppText>
+      <TouchableOpacity onPress={() => setShowCheckInPicker(true)} style={[styles.dateInput, { backgroundColor: COLORS.lightGray, justifyContent: 'center', paddingHorizontal: SPACING.md }]}>
+=======
+          {/* Date Pickers */}
+        <View style={[styles.row, { marginTop: SPACING.md, zIndex: 50 }]}>
+          <View style={[styles.col, { marginRight: SPACING.md }]}>
+            <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
+              Ngày nhận phòng
+            </AppText>
+            <TouchableOpacity
+              onPress={() => setShowCheckInPicker(true)}
+              style={[styles.dropdown, { backgroundColor: COLORS.lightGray, justifyContent: 'center' }]}
+            >
+>>>>>>> Tin
+              <AppText variant="body" color={COLORS.textDark}>
+                {checkIn.toISOString().split("T")[0]}
               </AppText>
-              <TouchableOpacity onPress={() => setShowCheckInPicker(true)} style={[styles.dateInput, { backgroundColor: COLORS.lightGray, justifyContent: 'center', paddingHorizontal: SPACING.md }]}>
-                <AppText variant="body" color={COLORS.textDark}>
-                  {checkIn.toISOString().split("T")[0]}
-                </AppText>
-              </TouchableOpacity>
-              {showCheckInPicker && (
-                <DateTimePicker
-                  value={checkIn}
-                  mode="date"
-                  display={Platform.OS === "ios" ? "spinner" : "default"}
-                  onChange={(event: DateTimePickerEvent, selectedDate?: Date) => {
-                    setShowCheckInPicker(Platform.OS === "ios");
-                    if (selectedDate) setCheckIn(selectedDate);
-                  }}
-                  minimumDate={new Date()}
-                />
-              )}
-            </View>
+            </TouchableOpacity>
+            {showCheckInPicker && (
+              <DateTimePicker
+                value={checkIn}
+                mode="date"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={(event: DateTimePickerEvent, selectedDate?: Date) => {
+                  setShowCheckInPicker(Platform.OS === "ios");
+                  if (selectedDate) setCheckIn(selectedDate);
+                }}
+                minimumDate={new Date()}
+              />
+            )}
+          </View>
+<<<<<<< HEAD
             <View style={styles.dateCol}>
               <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
                 Ngày trả phòng
               </AppText>
               <TouchableOpacity onPress={() => setShowCheckOutPicker(true)} style={[styles.dateInput, { backgroundColor: COLORS.lightGray, justifyContent: 'center', paddingHorizontal: SPACING.md }]}>
-                <AppText variant="body" color={COLORS.textDark}>
-                  {checkOut.toISOString().split("T")[0]}
-                </AppText>
-              </TouchableOpacity>
-              {showCheckOutPicker && (
-                <DateTimePicker
-                  value={checkOut}
-                  mode="date"
-                  display={Platform.OS === "ios" ? "spinner" : "default"}
-                  onChange={(event: DateTimePickerEvent, selectedDate?: Date) => {
-                    setShowCheckOutPicker(Platform.OS === "ios");
-                    if (selectedDate) setCheckOut(selectedDate);
+=======
+            <View style={styles.col}>
+        <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
+          Ngày trả phòng
+        </AppText>
+        <TouchableOpacity
+          onPress={() => setShowCheckOutPicker(true)}
+          style={[styles.dropdown, { backgroundColor: COLORS.lightGray, justifyContent: 'center' }]}
+        >
+>>>>>>> Tin
+          <AppText variant="body" color={COLORS.textDark}>
+            {checkOut.toISOString().split("T")[0]}
+          </AppText>
+        </TouchableOpacity>
+        {showCheckOutPicker && (
+          <DateTimePicker
+            value={checkOut}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={(event: DateTimePickerEvent, selectedDate?: Date) => {
+              setShowCheckOutPicker(Platform.OS === "ios");
+              if (selectedDate) setCheckOut(selectedDate);
+            }}
+            minimumDate={checkIn}
+          />
+        )}
+      </View>
+  </View>
+
+<<<<<<< HEAD
+    <View style={[styles.row, { zIndex: 100 }]}>
+=======
+          <View style={[styles.row, { marginTop: SPACING.md, zIndex: 100 }]}>
+>>>>>>> Tin
+        <View style={[styles.col, { marginRight: SPACING.md, zIndex: showCapacityDropdown ? 2000 : 1 }]}>
+          <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
+            Capacity
+          </AppText>
+          <TouchableOpacity
+            style={styles.dropdown}
+            onPress={() => {
+              setShowCapacityDropdown(!showCapacityDropdown);
+              setShowPriceDropdown(false);
+            }}
+          >
+            <AppText variant="body" color={COLORS.textDark}>
+              {capacity || "Select capacity"}
+            </AppText>
+            <AppText variant="caption">▼</AppText>
+          </TouchableOpacity>
+          {showCapacityDropdown && (
+            <ScrollView style={[styles.dropdownList, { ...SHADOWS.medium }]} nestedScrollEnabled>
+              {["none", "1", "2", "3", "4"].map((c) => (
+                <TouchableOpacity
+                  key={c}
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setCapacity(c);
+                    setShowCapacityDropdown(false);
                   }}
-                  minimumDate={checkIn}
-                />
-              )}
-            </View>
-          </View>
+                >
+                  <AppText variant="body" color={COLORS.textDark}>
+                    {c}
+                  </AppText>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
+        </View>
 
-          <View style={[styles.row, { zIndex: 100 }]}>
-            <View style={[styles.col, { marginRight: SPACING.md, zIndex: showCapacityDropdown ? 2000 : 1 }]}>
-              <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
-                Capacity
-              </AppText>
-              <TouchableOpacity
-                style={styles.dropdown}
-                onPress={() => {
-                  setShowCapacityDropdown(!showCapacityDropdown);
-                  setShowPriceDropdown(false);
-                }}
-              >
-                <AppText variant="body" color={COLORS.textDark}>
-                  {capacity || "Select capacity"}
-                </AppText>
-                <AppText variant="caption">▼</AppText>
-              </TouchableOpacity>
-              {showCapacityDropdown && (
-                <View style={[styles.dropdownList, { ...SHADOWS.medium }]}>
-                  {["none", "1", "2", "3", "4"].map((c) => (
-                    <TouchableOpacity
-                      key={c}
-                      style={styles.dropdownItem}
-                      onPress={() => {
-                        setCapacity(c);
-                        setShowCapacityDropdown(false);
-                      }}
-                    >
-                      <AppText variant="body" color={COLORS.textDark}>
-                        {c}
-                      </AppText>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
+        <View style={[styles.col, { zIndex: showPriceDropdown ? 2000 : 1 }]}>
+          <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
+            Price Range
+          </AppText>
+          <TouchableOpacity
+            style={styles.dropdown}
+            onPress={() => {
+              setShowPriceDropdown(!showPriceDropdown);
+              setShowCapacityDropdown(false);
+            }}
+          >
+            <AppText variant="body" color={COLORS.textDark}>
+              {priceRange || "Select range"}
+            </AppText>
+            <AppText variant="caption">▼</AppText>
+          </TouchableOpacity>
+          {showPriceDropdown && (
+            <ScrollView style={[styles.dropdownList, { ...SHADOWS.medium }]} nestedScrollEnabled>
+              {["none", "100-200", "200-300", "300-500", ">500"].map((r) => (
+                <TouchableOpacity
+                  key={r}
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setPriceRange(r);
+                    setShowPriceDropdown(false);
+                  }}
+                >
+                  <AppText variant="body" color={COLORS.textDark}>
+                    {r}
+                  </AppText>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
+        </View>
+      </View>
+<<<<<<< HEAD
+  <AppButton
+    title="Tìm phòng"
+    onPress={() => { }}
+=======
 
-            <View style={[styles.col, { zIndex: showPriceDropdown ? 2000 : 1 }]}>
-              <AppText variant="caption" color={COLORS.textLight} style={{ marginBottom: SPACING.xs, fontWeight: "500" }}>
-                Price Range
-              </AppText>
-              <TouchableOpacity
-                style={styles.dropdown}
-                onPress={() => {
-                  setShowPriceDropdown(!showPriceDropdown);
-                  setShowCapacityDropdown(false);
-                }}
-              >
-                <AppText variant="body" color={COLORS.textDark}>
-                  {priceRange || "Select range"}
-                </AppText>
-                <AppText variant="caption">▼</AppText>
-              </TouchableOpacity>
-              {showPriceDropdown && (
-                <View style={[styles.dropdownList, { ...SHADOWS.medium }]}>
-                  {["none", "100-200", "200-300", "300-500", ">500"].map((r) => (
-                    <TouchableOpacity
-                      key={r}
-                      style={styles.dropdownItem}
-                      onPress={() => {
-                        setPriceRange(r);
-                        setShowPriceDropdown(false);
-                      }}
-                    >
-                      <AppText variant="body" color={COLORS.textDark}>
-                        {r}
-                      </AppText>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-          </View>
+          {/* Search Button */}
           <AppButton
             title="Tìm phòng"
-            onPress={() => { }}
-            style={{
-              marginTop: SPACING.md,
-              alignSelf: 'stretch',
-              minWidth: 120,
-              paddingVertical: SPACING.md,
-              paddingHorizontal: SPACING.lg,
-              backgroundColor: COLORS.primary,
-              borderRadius: SIZES.radiusSmall,
-              marginLeft: 0,
-            }}
-          />
-        </View>
+            onPress={handleSearchClick}
+>>>>>>> Tin
+    style={{
+      marginTop: SPACING.md,
+      alignSelf: 'stretch',
+      minWidth: 120,
+      paddingVertical: SPACING.md,
+      paddingHorizontal: SPACING.lg,
+      backgroundColor: COLORS.primary,
+      borderRadius: SIZES.radiusSmall,
+      marginLeft: 0,
+    }}
+  />
+        </View >
 
         <BookingList bookings={mockBookings} />
 
         <AppText variant="subtitle" color={COLORS.textDark} style={{ marginBottom: SPACING.md }}>
           Recommended Rooms
         </AppText>
-        {filteredRooms.length > 0 ? (
-          <View style={styles.gridContainer}>
-            {filteredRooms.map((room) => (
-              <View key={room.id ?? room.name} style={[styles.roomCard, { ...SHADOWS.light }]}>
-                <Image source={{ uri: room.image }} style={styles.roomImage} />
-                <View style={styles.roomContent}>
-                  <AppText variant="body" color={COLORS.textDark} numberOfLines={1} style={{ fontWeight: "600" }}>
-                    {room.name}
-                  </AppText>
-                  <View style={styles.roomMetaContainer}>
-                    <AppText variant="caption" color={COLORS.textLight}>
-                      📍 {room.size}
-                    </AppText>
-                    <AppText variant="caption" color={COLORS.textLight}>
-                      🛏️ {room.bed}
-                    </AppText>
-                    <AppText variant="caption" color={COLORS.textLight}>
-                      👁️ {room.view}
-                    </AppText>
-                  </View>
-                  <View style={styles.footerRow}>
-                    <AppText variant="body" color={COLORS.primary} style={{ fontWeight: "bold" }}>
-                      ${room.price}
-                      <AppText variant="caption" color={COLORS.textLight}>
-                        /night
-                      </AppText>
-                    </AppText>
-                    <AppButton
-                      title="Select"
-                      onPress={() => handleSelectRoom(room)}
-                      style={styles.selectButton}
-                    />
-                  </View>
-                </View>
-              </View>
-            ))}
+{
+  filteredRooms.length > 0 ? (
+    <View style={styles.gridContainer}>
+      {filteredRooms.map((room) => (
+        <View key={room.id ?? room.name} style={[styles.roomCard, { ...SHADOWS.light }]}>
+          <Image source={{ uri: room.image }} style={styles.roomImage} />
+          <View style={styles.roomContent}>
+            <AppText variant="body" color={COLORS.textDark} numberOfLines={1} style={{ fontWeight: "600" }}>
+              {room.name}
+            </AppText>
+            <View style={styles.roomMetaContainer}>
+              <AppText variant="caption" color={COLORS.textLight}>
+                📍 {room.size}
+              </AppText>
+              <AppText variant="caption" color={COLORS.textLight}>
+                🛏️ {room.bed}
+              </AppText>
+              <AppText variant="caption" color={COLORS.textLight}>
+                👁️ {room.view}
+              </AppText>
+            </View>
+            <View style={styles.footerRow}>
+              <AppText variant="body" color={COLORS.primary} style={{ fontWeight: "bold" }}>
+                ${room.price}
+                <AppText variant="caption" color={COLORS.textLight}>
+                  /night
+                </AppText>
+              </AppText>
+              <AppButton
+                title="Select"
+                onPress={() => handleSelectRoom(room)}
+                style={styles.selectButton}
+              />
+            </View>
           </View>
-        ) : (
-          <View style={styles.emptyContainer}>
-            <AppText variant="title" color={COLORS.textLight} style={{ marginBottom: SPACING.md }}>
-              🔍
-            </AppText>
-            <AppText variant="subtitle" color={COLORS.textDark}>
-              Phòng không tồn tại
-            </AppText>
-            <AppText variant="body" color={COLORS.textLight} style={{ marginTop: SPACING.xs }}>
-              Vui lòng thử từ khóa khác
-            </AppText>
-          </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+        </View>
+      ))}
+    </View>
+  ) : (
+  <View style={styles.emptyContainer}>
+    <AppText variant="title" color={COLORS.textLight} style={{ marginBottom: SPACING.md }}>
+      🔍
+    </AppText>
+    <AppText variant="subtitle" color={COLORS.textDark}>
+      Phòng không tồn tại
+    </AppText>
+    <AppText variant="body" color={COLORS.textLight} style={{ marginTop: SPACING.xs }}>
+      Vui lòng thử từ khóa khác
+    </AppText>
+  </View>
+)
+}
+      </ScrollView >
+    </SafeAreaView >
   );
 };
 
@@ -384,7 +445,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row" },
   col: { flex: 1 },
   dropdown: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1, borderColor: COLORS.border, borderRadius: SIZES.radiusSmall, paddingHorizontal: SPACING.md, height: SIZES.base * 5.5, backgroundColor: COLORS.white },
-  dropdownList: { position: "absolute", top: SIZES.base * 5.75, left: 0, right: 0, backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border, borderRadius: SIZES.radiusSmall, zIndex: 999, elevation: 10, maxHeight: 180, overflow: "hidden" },
+  dropdownList: { position: "absolute", top: SIZES.base * 5.75, left: 0, right: 0, backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border, borderRadius: SIZES.radiusSmall, zIndex: 999, elevation: 10, maxHeight: 250 },
   dropdownItem: { paddingVertical: SPACING.md, paddingHorizontal: SPACING.md },
   roomCard: { width: CARD_WIDTH, backgroundColor: COLORS.white, borderRadius: SIZES.radiusLarge, marginBottom: SPACING.lg, overflow: "hidden" },
   roomImage: { width: "100%", height: 120, resizeMode: "cover" },

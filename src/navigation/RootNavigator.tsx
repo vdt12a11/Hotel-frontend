@@ -5,6 +5,8 @@ import SignupScreen from '../features/auth/screens/SignupScreen';
 import TabNavigator from './TabNavigator';
 import BookingScreen from '../features/booking/screens/BookingScreen';
 import BookingSuccessScreen from '../features/booking/screens/BookingSuccessScreen';
+import RoomDetailScreen from '../features/room/screens/RoomDetailScreen';
+import PaymentScreen from '../features/payment/screens/PaymentScreen';
 import CheckInScreen from '../features/checkinout/screens/CheckInScreen';
 import CheckOutScreen from '../features/checkinout/screens/CheckOutScreen';
 import HistoryScreen from '../features/History/screens/HistoryScreen';
@@ -84,6 +86,20 @@ const RootNavigator: React.FC<RootNavigatorProps> = ({ user, onLogin, onLogout }
                                 onBack={() => props.navigation.goBack()}
                             />
                         )}
+                    </Stack.Screen>
+                    <Stack.Screen name="RoomDetail">
+                        {(props: any) => {
+                            const { room } = (props.route.params as any) || {};
+                            if (!room) return null;
+                            return <RoomDetailScreen {...props} />;
+                        }}
+                    </Stack.Screen>
+                    <Stack.Screen name="Payment">
+                        {(props: any) => {
+                            const { room, checkIn, checkOut } = (props.route.params as any) || {};
+                            if (!room) return null;
+                            return <PaymentScreen {...props} />;
+                        }}
                     </Stack.Screen>
 
                     <Stack.Group screenOptions={{ presentation: 'modal' }}>

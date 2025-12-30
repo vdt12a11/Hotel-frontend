@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { User, BookingHistoryItem } from '../../../types';
 import { AppText } from '../../../shared/components';
 import ScreenContainer from '../../../shared/components/layout/ScreenContainer';
+import { mockBookings } from '../../../data/mockBookings';
 
 interface MyBookingsScreenProps {
   user: User | null;
@@ -16,10 +17,31 @@ const MyBookingsScreen: React.FC<MyBookingsScreenProps> = ({ user }) => {
   // Mock data or empty state for now.
   const [upcomingBookings, setUpcomingBookings] = useState<BookingHistoryItem[]>([]);
 
-  // Placeholder fetch (replace with real API call later)
+  // Load mock bookings data
   useEffect(() => {
-    // Simulate fetching
-    // setUpcomingBookings([...]);
+    // Convert mockBookings to BookingHistoryItem format for demo
+    const mockData: BookingHistoryItem[] = mockBookings
+      .filter(booking => booking.status === 'upcoming')
+      .map((booking, index) => ({
+        _id: booking.id,
+        room: {
+          id: booking.id,
+          name: booking.hotelName,
+          image: booking.image,
+          bed: '1 King Bed',
+          view: 'Ocean View',
+          price: 1500000,
+          capacity: 2,
+        },
+        formData: {
+          name: 'Guest',
+          checkIn: booking.date.split('-')[0],
+          checkOut: booking.date.split('-')[1],
+        },
+        createdAt: new Date().toISOString(),
+        status: booking.status,
+      }));
+    setUpcomingBookings(mockData);
   }, []);
 
   const renderEmptyState = () => (
