@@ -5,7 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLORS, SIZES, SHADOWS, SPACING } from '../constaints/hotelTheme';
 import SearchScreen from '../features/search/screens/SearchScreen';
 import UserProfileScreen from '../features/profile/screens/UserProfileScreen';
-import PlaceholderScreen from '../features/profile/screens/PlaceholderScreen';
+import HistoryScreen from '../features/History/screens/HistoryScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,15 +32,31 @@ interface BottomTabNavigatorProps {
   onNavigate?: (screen: string) => void;
 }
 
-interface TabConfig {
-  name: string;
-  component: React.ComponentType<any>;
-  props?: Record<string, any>;
-}
-
 const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({ onSelectRoom, currentUser, onLogout, onNavigate }) => {
   // debug
   console.log('TabNavigator currentUser:', currentUser);
+
+  const renderSearchScreen = React.useCallback(
+    (props: any) => (
+      <SearchScreen
+        {...props}
+        user={currentUser}
+        onSelectRoom={onSelectRoom}
+        onNavigate={onNavigate}
+      />
+    ),
+    [currentUser, onSelectRoom, onNavigate]
+  );
+
+  const renderHistoryScreen = React.useCallback(
+    (props: any) => <HistoryScreen {...props} user={currentUser} />,
+    [currentUser]
+  );
+
+  const renderProfileScreen = React.useCallback(
+    (props: any) => <UserProfileScreen {...props} onLogout={onLogout} user={currentUser} />,
+    [currentUser, onLogout]
+  );
 
   // Explicitly render some screens so we can forward `currentUser` as a prop
   return (
@@ -61,9 +77,6 @@ const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({ onSelectRoom, c
             case 'History':
               iconName = 'time-outline';
               break;
-            case 'Saved':
-              iconName = 'heart-outline';
-              break;
             case 'Profile':
               iconName = 'person-outline';
               break;
@@ -81,24 +94,11 @@ const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({ onSelectRoom, c
         },
       })}
     >
-      <Tab.Screen name="Search">
-        {(props: any) => (
-          <SearchScreen
-            {...props}
-            user={currentUser}
-            onSelectRoom={onSelectRoom}
-            onNavigate={onNavigate}
-          />
-        )}
-      </Tab.Screen>
+      <Tab.Screen name="Search">{renderSearchScreen}</Tab.Screen>
 
-      <Tab.Screen name="Saved">
-        {(props: any) => <PlaceholderScreen {...props} />}
-      </Tab.Screen>
+      <Tab.Screen name="History">{renderHistoryScreen}</Tab.Screen>
 
-      <Tab.Screen name="Profile">
-        {(props: any) => <UserProfileScreen {...props} onLogout={onLogout} user={currentUser} />}
-      </Tab.Screen>
+      <Tab.Screen name="Profile">{renderProfileScreen}</Tab.Screen>
     </Tab.Navigator>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, useWindowDimensions, StatusBar, Platform } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import AppText from "../../../shared/components/AppText";
 import AppButton from "../../../shared/components/AppButton";
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -31,11 +32,11 @@ interface BookingRecord {
 }
 
 interface HistoryScreenProps {
-  onBack: () => void;
   user: User;
 }
 
-const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
+const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
+  const navigation = useNavigation<any>();
   const { width } = useWindowDimensions();
   const [history, setHistory] = useState<BookingRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -217,7 +218,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ onBack, user }) => {
       <View style={[styles.header, { backgroundColor: COLORS.primary, paddingHorizontal: responsive.headerPaddingH }]}>
         <View style={styles.headerTop}>
           <TouchableOpacity
-            onPress={onBack}
+            onPress={() => navigation.navigate('Search')}
             hitSlop={{top:10, left:10, right:10 }}
             style={styles.backCircle}
           >

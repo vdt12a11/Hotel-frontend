@@ -285,11 +285,6 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
               style={styles.reloadButton}
             />
             <AppButton
-              title="View History"
-              onPress={() => navigation.navigate('History')}
-              style={styles.historyButton}
-            />
-            <AppButton
               title="Link momo"
               onPress={linkWallet}
               style={styles.reloadButton}

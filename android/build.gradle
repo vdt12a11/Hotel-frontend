@@ -19,3 +19,31 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+subprojects {
+    if (project.name.contains('react-native-safe-area-context')) {
+        buildscript {
+            repositories {
+                mavenCentral()
+            }
+        }
+    }
+    tasks.withType(com.android.build.gradle.tasks.ExternalNativeBuildTask) {
+        doFirst {
+            // Ref: https://github.com/react-native-community/cli/issues/1935
+            // This fix is needed for Windows users with long paths
+            if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+                // The ninja command's file paths are being reported as being too long
+                // because they are relative to the wrong directory. This changes the
+                // C/C++ build directory to be closer to the files it is building.
+                def aop = project.android.defaultConfig.externalNativeBuild.cmake
+                def cppFlags = aop.cppFlags.join(' ').trim()
+                if (cppFlags.isEmpty()) {
+                    aop.cppFlags '-fmacro-prefix-map=' + project.projectDir.absolutePath + '=.'
+                } else if (!cppFlags.contains('-fmacro-prefix-map')) {
+                    aop.cppFlags cppFlags, '-fmacro-prefix-map=' + project.projectDir.absolutePath + '=.'
+                }
+            }
+        }
+    }
+}
