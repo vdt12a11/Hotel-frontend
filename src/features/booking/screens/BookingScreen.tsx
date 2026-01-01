@@ -81,7 +81,7 @@ const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfi
     const strCheckOut = formatDate(checkOut);
     const nights = calculateNights(strCheckIn, strCheckOut);
     const bookingData = {
-      room: room._id,
+      room: room,
       formData: { name, phone, email, checkIn: strCheckIn, checkOut: strCheckOut },
       totalPrice: nights * room.price,
       userID: userID || "guest",
