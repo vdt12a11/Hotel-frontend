@@ -138,17 +138,42 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
 
   const handleCheckIn = (bookingId: string) => {
     setSelectedBookingId(bookingId);
+    console.log("handle checkin",bookingId);
     setModalAction('checkin');
     setIsCheckInModalVisible(true);
   };
 
-  const handleConfirmModal = () => {
+  const handleConfirmModal = async () => {
     if (selectedBookingId) {
       if (modalAction === 'checkin') {
         setCheckedInBookings(prev => new Set(prev).add(selectedBookingId));
-        console.log('Check-in confirmed for', selectedBookingId);
+        const result =await fetch(`${Config.API_URL}/booking/${selectedBookingId}/checkin`,
+          {
+            method:"PATCH"
+          }
+        );
+        if(!result.ok)
+        {
+          console.log("Check In that bai");
+        }
+        else{
+          console.log('Check-in confirmed for', selectedBookingId);
+        }
+        
       } else {
-        console.log('Check-out confirmed for', selectedBookingId);
+        const result =await fetch(`${Config.API_URL}/booking/${selectedBookingId}/checkout`,
+          {
+            method:"PATCH"
+          }
+        );
+        if(!result.ok)
+        {
+          console.log("Check out that bai");
+        }
+        else{
+          console.log('Check-out confirmed for', selectedBookingId);
+        }
+        
       }
     }
     setIsCheckInModalVisible(false);
@@ -169,7 +194,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
   const renderItem = ({ item }: { item: BookingRecord }) => {
     const isCheckedIn = checkedInBookings.has(item._id);
     const canCheckOut = isCheckedIn;
-
+    console.log("item id",item._id);
     // Check if today is within check-in and check-out dates
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset time to start of day
