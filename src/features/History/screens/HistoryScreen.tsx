@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, useWindowDimensions, StatusBar, Platform, RefreshControl, Modal } from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, useWindowDimensions, StatusBar, Platform, RefreshControl, Modal, Alert } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AppText from "../../../shared/components/AppText";
 import AppButton from "../../../shared/components/AppButton";
@@ -144,40 +144,43 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
   };
 
   const handleConfirmModal = async () => {
-    if (selectedBookingId) {
+    if (!selectedBookingId) return;
+
+    try {
       if (modalAction === 'checkin') {
-        setCheckedInBookings(prev => new Set(prev).add(selectedBookingId));
-        const result =await fetch(`${Config.API_URL}/booking/${selectedBookingId}/checkin`,
-          {
-            method:"PATCH"
-          }
-        );
-        if(!result.ok)
-        {
-          console.log("Check In that bai");
-        }
-        else{
+        const res = await fetch(`${Config.API_URL}/booking/${selectedBookingId}/checkin`, { method: "PATCH" });
+        if (!res.ok) {
+          console.log("Check-in thất bại", res.status);
+          Alert.alert('Lỗi', 'Check-in thất bại. Vui lòng thử lại.');
+        } else {
+          setCheckedInBookings(prev => {
+            const next = new Set(prev);
+            next.add(selectedBookingId);
+            return next;
+          });
           console.log('Check-in confirmed for', selectedBookingId);
         }
-        
       } else {
-        const result =await fetch(`${Config.API_URL}/booking/${selectedBookingId}/checkout`,
-          {
-            method:"PATCH"
-          }
-        );
-        if(!result.ok)
-        {
-          console.log("Check out that bai");
-        }
-        else{
+        const res = await fetch(`${Config.API_URL}/booking/${selectedBookingId}/checkout`, { method: "PATCH" });
+        if (!res.ok) {
+          console.log("Check-out thất bại", res.status);
+          Alert.alert('Lỗi', 'Check-out thất bại. Vui lòng thử lại.');
+        } else {
+          setCheckedInBookings(prev => {
+            const next = new Set(prev);
+            next.delete(selectedBookingId);
+            return next;
+          });
           console.log('Check-out confirmed for', selectedBookingId);
         }
-        
       }
+    } catch (error) {
+      console.log('Network error', error);
+      Alert.alert('Lỗi', 'Có lỗi mạng. Vui lòng thử lại.');
+    } finally {
+      setIsCheckInModalVisible(false);
+      setSelectedBookingId(null);
     }
-    setIsCheckInModalVisible(false);
-    setSelectedBookingId(null);
   };
 
   const handleCancelCheckIn = () => {
