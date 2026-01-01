@@ -5,8 +5,6 @@ import SignupScreen from '../features/auth/screens/SignupScreen';
 import TabNavigator from './TabNavigator';
 import BookingScreen from '../features/booking/screens/BookingScreen';
 import BookingSuccessScreen from '../features/booking/screens/BookingSuccessScreen';
-import CheckInScreen from '../features/checkinout/screens/CheckInScreen';
-import CheckOutScreen from '../features/checkinout/screens/CheckOutScreen';
 import HistoryScreen from '../features/History/screens/HistoryScreen';
 import { User, BookingData } from '../types';
 import { Alert } from 'react-native';
@@ -84,8 +82,6 @@ const RootNavigator: React.FC<RootNavigatorProps> = ({ user, onLogin, onLogout }
                     <Stack.Screen name="Main">
                         {(props: any) => <TabNavigator {...props} currentUser={user} onLogout={onLogout} />}
                     </Stack.Screen>
-                    <Stack.Screen name="CheckIn" component={CheckInScreen} />
-                    <Stack.Screen name="CheckOut" component={CheckOutScreen} />
                     <Stack.Screen name="History">
                         {(props: any) => (
                             <HistoryScreen

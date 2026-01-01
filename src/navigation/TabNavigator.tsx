@@ -90,7 +90,11 @@ const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({ onSelectRoom, c
               </View>
             );
           }
-          return <Ionicons name={iconName as never} size={22} color={COLORS.textLight} />;
+          return (
+          <View style={styles.iconCircle_unselected}>
+            <Ionicons name={iconName as never} size={22} color={COLORS.textLight} />;
+            </View>
+          );
         },
       })}
     >
@@ -119,6 +123,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.body4,
     marginBottom: SIZES.base,
     color: COLORS.text,
+    paddingTop: SIZES.base ,
   },
   iconCircle: {
     width: SIZES.base * 4 + 4,
@@ -127,5 +132,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.border,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 15,
+  },
+  iconCircle_unselected: {
+    width: SIZES.base * 4 + 4,
+    height: SIZES.base * 4 + 4,
+    borderRadius: (SIZES.base * 4 + 4) / 2,
+   
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 15,
   },
 });

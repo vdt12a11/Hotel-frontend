@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, useWindowDimensions, StatusBar, Platform } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, useWindowDimensions, StatusBar, Platform, RefreshControl, Modal } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AppText from "../../../shared/components/AppText";
 import AppButton from "../../../shared/components/AppButton";
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -20,6 +20,8 @@ interface FormData {
   name: string;
   checkIn?: string;
   checkOut?: string;
+  phone?: string;
+  email?: string;
 }
 
 interface BookingRecord {
@@ -40,6 +42,11 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
   const { width } = useWindowDimensions();
   const [history, setHistory] = useState<BookingRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [checkedInBookings, setCheckedInBookings] = useState<Set<string>>(new Set());
+  const [isCheckInModalVisible, setIsCheckInModalVisible] = useState<boolean>(false);
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+  const [modalAction, setModalAction] = useState<'checkin' | 'checkout'>('checkin');
 
   const responsive = {
     headerPaddingH: Math.max(15, Math.min(25, 20 * (width / 375))),
@@ -56,7 +63,13 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
         throw new Error((data as { message?: string }).message || 'Get history failed');
       }
       console.log(data);
-      setHistory(data as BookingRecord[]);
+      // Sắp xếp theo ngày mới nhất lên trước
+      const sortedData = (data as BookingRecord[]).sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return dateB - dateA; // Giảm dần (mới nhất lên trước)
+      });
+      setHistory(sortedData);
     } catch (error) {
       console.log('Lỗi lấy lịch sử:', error);
     } finally {
@@ -66,6 +79,20 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
 
   useEffect(() => {
     fetchHistory();
+  }, []);
+
+  // Fetch lại dữ liệu khi quay lại screen
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchHistory();
+      return () => {};
+    }, [user.userID])
+  );
+
+  // Pull-to-refresh handler
+  const handleRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    fetchHistory().finally(() => setRefreshing(false));
   }, []);
 
   const getStatusColor = (status: string) => {
@@ -109,7 +136,64 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
     }
   };
 
-  const renderItem = ({ item }: { item: BookingRecord }) => (
+  const handleCheckIn = (bookingId: string) => {
+    setSelectedBookingId(bookingId);
+    setModalAction('checkin');
+    setIsCheckInModalVisible(true);
+  };
+
+  const handleConfirmModal = () => {
+    if (selectedBookingId) {
+      if (modalAction === 'checkin') {
+        setCheckedInBookings(prev => new Set(prev).add(selectedBookingId));
+        console.log('Check-in confirmed for', selectedBookingId);
+      } else {
+        console.log('Check-out confirmed for', selectedBookingId);
+      }
+    }
+    setIsCheckInModalVisible(false);
+    setSelectedBookingId(null);
+  };
+
+  const handleCancelCheckIn = () => {
+    setIsCheckInModalVisible(false);
+    setSelectedBookingId(null);
+  };
+
+  const handleCheckOut = (bookingId: string) => {
+    setSelectedBookingId(bookingId);
+    setModalAction('checkout');
+    setIsCheckInModalVisible(true);
+  };
+
+  const renderItem = ({ item }: { item: BookingRecord }) => {
+    const isCheckedIn = checkedInBookings.has(item._id);
+    const canCheckOut = isCheckedIn;
+
+    // Check if today is within check-in and check-out dates
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
+    
+    const checkInDate = item.formData.checkIn ? new Date(item.formData.checkIn) : null;
+    const checkOutDate = item.formData.checkOut ? new Date(item.formData.checkOut) : null;
+    
+    if (checkInDate) {
+      checkInDate.setHours(0, 0, 0, 0);
+    }
+    if (checkOutDate) {
+      checkOutDate.setHours(0, 0, 0, 0);
+    }
+    
+    // Chỉ hiển thị button nếu hôm nay nằm trong khoảng check-in và check-out
+    const isWithinBookingDates = 
+      checkInDate && checkOutDate &&
+      today >= checkInDate && 
+      today <= checkOutDate;
+    
+    const isPending = item.status?.toLowerCase() === 'pending';
+    const shouldShowButtons = isWithinBookingDates && !isPending;
+
+    return (
     <View style={[styles.card, { ...SHADOWS.medium }]}> 
       {/* Header: Room Name + Status */}
       <View style={styles.cardHeader}>
@@ -149,6 +233,36 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
           </AppText>
         </View>
 
+        {item.formData.phone ? (
+          <View style={styles.infoRow}>
+            <AppText variant="caption" color={COLORS.textLight}>
+              📞 Phone
+            </AppText>
+            <AppText 
+              variant="body" 
+              color={COLORS.textDark} 
+              style={{ fontWeight: '500' }}
+            >
+              {item.formData.phone}
+            </AppText>
+          </View>
+        ) : null}
+
+        {item.formData.email ? (
+          <View style={styles.infoRow}>
+            <AppText variant="caption" color={COLORS.textLight}>
+              ✉️ Email
+            </AppText>
+            <AppText 
+              variant="body" 
+              color={COLORS.textDark} 
+              style={{ fontWeight: '500' }}
+            >
+              {item.formData.email}
+            </AppText>
+          </View>
+        ) : null}
+
         {item.formData.checkIn && item.formData.checkOut && (
           <View style={styles.infoRow}>
             <AppText variant="caption" color={COLORS.textLight}>
@@ -162,20 +276,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
               {formatDate(item.formData.checkIn)} → {formatDate(item.formData.checkOut)}
             </AppText>
           </View>
-        )}
-
-        <View style={styles.infoRow}>
-          <AppText variant="caption" color={COLORS.textLight}>
-            📅 Booked on
-          </AppText>
-          <AppText 
-            variant="body" 
-            color={COLORS.textDark} 
-            style={{ fontWeight: '500' }}
-          >
-            {formatDate(item.createdAt)}
-          </AppText>
-        </View>
+        )}     
       </View>
 
       {/* Price Section */}
@@ -207,8 +308,30 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
           </View>
         )}
       </View>
+
+      {shouldShowButtons && (
+        <View style={styles.actionsRow}>
+          <AppButton
+            title="Check-in"
+            onPress={() => handleCheckIn(item._id)}
+            style={styles.actionButton}
+            disabled={isCheckedIn}
+          />
+          <AppButton
+            title="Check-out"
+            onPress={() => handleCheckOut(item._id)}
+            style={[
+              styles.actionButton, 
+              styles.checkOutButton,
+              !canCheckOut && styles.disabledButton
+            ]}
+            disabled={!canCheckOut}
+          />
+        </View>
+      )}
     </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: COLORS.background }]}>
@@ -241,6 +364,45 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
         </AppText>
       </View>
 
+      {/* Check-in Modal */}
+      <Modal
+        visible={isCheckInModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCancelCheckIn}
+        statusBarTranslucent
+        presentationStyle="overFullScreen"
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <AppText variant="title" color={COLORS.textDark} style={{ marginBottom: SPACING.lg }}>
+              Xác nhận đặt phòng
+            </AppText>
+            <AppText
+              variant="body"
+              color={COLORS.textLight}
+              style={{ marginBottom: SPACING.xl, fontSize: SIZES.body1 }}
+            >
+              {modalAction === 'checkin' ? 'Bạn đã nhận phòng chứ?' : 'Bạn muốn trả phòng chứ?'}
+            </AppText>
+            
+            <View style={styles.modalButtonGroup}>
+              <AppButton
+                title="Hủy"
+                onPress={handleCancelCheckIn}
+                style={[styles.modalButton, styles.disabledButton]}
+                textStyle={{ color: COLORS.textLight }}
+              />
+              <AppButton
+                title="Đồng ý"
+                onPress={handleConfirmModal}
+                style={[styles.modalButton, { backgroundColor: COLORS.primary }]}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Content */}
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -255,6 +417,13 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
           keyExtractor={(item) => item._id}
           contentContainerStyle={[styles.listContent, { paddingHorizontal: responsive.headerPaddingH }]}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor={COLORS.primary}
+            />
+          }
         />
       ) : (
         <View style={styles.emptyContainer}>
@@ -316,8 +485,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
   },
   listContent: { 
-    paddingBottom: SPACING.xxl,
+    paddingBottom: SPACING.xxl * 2.5,
     paddingTop: SPACING.lg,
+    marginBottom: SPACING.xxl,
   },
   card: {
     backgroundColor: COLORS.white,
@@ -365,12 +535,53 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  actionsRow: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+    marginTop: SPACING.lg,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    paddingTop: SPACING.md,
+  },
+  actionButton: {
+    flex: 1,
+  },
+  checkOutButton: {
+    backgroundColor: COLORS.primary,
+  },
+  disabledButton: {
+    backgroundColor: COLORS.border,
+  },
   totalPriceBox: {
     backgroundColor: COLORS.primaryLight,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.md,
     borderRadius: SIZES.radiusSmall,
     alignItems: 'flex-end',
+  },
+  modalOverlay: {
+    flex: 1,
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: COLORS.white,
+    borderRadius: SIZES.radiusLarge,
+    padding: SPACING.lg,
+    width: '80%',
+    alignItems: 'center',
+    ...SHADOWS.medium,
+  },
+  modalButtonGroup: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: SPACING.md,
   },
 });
 

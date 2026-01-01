@@ -135,7 +135,7 @@ const AppNavigator: React.FC = () => {
       )}
 
       {currentScreen === "history" && currentUser && (
-        <HistoryScreen user={currentUser} onBack={() => setCurrentScreen("search")} />
+        <HistoryScreen user={currentUser} />
       )}
 
       {currentScreen === "success" && bookingData && (
