@@ -11,25 +11,37 @@ import { Room, BookingData, ScreenName, User } from "../types";
 
 const AppNavigator: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenName>("login");
+  const [previousScreen, setPreviousScreen] = useState<ScreenName | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [searchData, setSearchData] = useState<{ capacity: string } | null>(null);
+  const [searchData, setSearchData] = useState<{ capacity: string } | null>(
+    null
+  );
   const [bookingData, setBookingData] = useState<BookingData | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null); // new state
+
+  const navigateTo = (screen: ScreenName) => {
+    setPreviousScreen(currentScreen);
+    setCurrentScreen(screen);
+  };
+
   const handleLogin = (user: User): void => {
     setCurrentUser(user);
     console.log("Logged in user:", user);
-    setCurrentScreen("search");
+    navigateTo("search");
   };
 
   const handleSignup = (): void => {
-    setCurrentScreen("login");
+    navigateTo("login");
   };
 
-  const handleSelectRoom = (room: Room, search: { capacity: string }): void => {
+  const handleSelectRoom = (
+    room: Room,
+    search: { capacity: string }
+  ): void => {
     setSelectedRoom(room);
     setSearchData(search);
-    setCurrentScreen("booking");
+    navigateTo("booking");
   };
 
   const handleConfirmBooking = async (booking: BookingData): Promise<void> => {
@@ -42,22 +54,24 @@ const AppNavigator: React.FC = () => {
         body: JSON.stringify({
           ...booking,
           userID: currentUser?.userID,
-          date: new Date().toISOString()
-        })
+          date: new Date().toISOString(),
+        }),
       });
       const data = await res.json();
       const createdOrderId = data.orderId ?? data.id ?? data._id ?? null;
-    
+
       if (createdOrderId) setOrderId(String(createdOrderId));
       if (!res.ok) {
-        throw new Error((data as { message?: string }).message || "Booking failed");
+        throw new Error(
+          (data as { message?: string }).message || "Booking failed"
+        );
       }
 
       console.log("Tạo booking thành công", data);
     } catch (err) {
       console.log("Lỗi booking:", err);
     }
-    setCurrentScreen("success");
+    navigateTo("success");
   };
 
   const resetApp = (): void => {
@@ -65,27 +79,47 @@ const AppNavigator: React.FC = () => {
     setSearchData(null);
     setBookingData(null);
     setOrderId(null);
-    setCurrentScreen("search");
+    navigateTo("search");
+  };
+
+  const handleBack = () => {
+    setCurrentScreen(previousScreen || "search");
   };
 
   return (
     <>
       {currentScreen === "login" && (
-        <LoginScreen onLogin={handleLogin} onSignup={() => setCurrentScreen("signup")} />
+        <LoginScreen
+          onLogin={handleLogin}
+          onSignup={() => navigateTo("signup")}
+        />
       )}
 
       {currentScreen === "signup" && (
-        <SignupScreen onBackToLogin={() => setCurrentScreen("login")} />
+        <SignupScreen onBackToLogin={() => navigateTo("login")} />
       )}
 
       {currentScreen === "search" && currentUser && (
         <SearchScreen
           user={currentUser}
-          onSelectRoom={handleSelectRoom as (room: any, search: { capacity: string }) => void}
+          onSelectRoom={
+            handleSelectRoom as (room: any, search: { capacity: string }) => void
+          }
           onNavigate={(screen: ScreenName) => {
             // Only allow valid ScreenName values
-            if (["login", "signup", "search", "booking", "history", "success", "profile", "MyBookings"].includes(screen)) {
-              setCurrentScreen(screen);
+            if (
+              [
+                "login",
+                "signup",
+                "search",
+                "booking",
+                "history",
+                "success",
+                "profile",
+                "MyBookings",
+              ].includes(screen)
+            ) {
+              navigateTo(screen);
             }
           }}
         />
@@ -96,16 +130,20 @@ const AppNavigator: React.FC = () => {
           room={selectedRoom}
           searchData={searchData}
           onConfirm={handleConfirmBooking}
-          onBack={() => setCurrentScreen("search")}
+          onBack={handleBack}
         />
       )}
 
       {currentScreen === "history" && currentUser && (
-        <HistoryScreen user={currentUser} onBack={() => setCurrentScreen("search")} />
-      )}     
+        <HistoryScreen user={currentUser} />
+      )}
 
       {currentScreen === "success" && bookingData && (
-        <BookingSuccessScreen booking={bookingData} onReset={resetApp} orderId={orderId } />
+        <BookingSuccessScreen
+          booking={bookingData}
+          onReset={resetApp}
+          orderId={orderId}
+        />
       )}
     </>
   );

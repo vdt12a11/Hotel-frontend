@@ -13,7 +13,7 @@ import {
   StyleSheet
 } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useRoute, useNavigation, useFocusEffect } from "@react-navigation/native";
 import BookingList from "../../../shared/components/dashboard/BookingList";
 import { getAvailableRooms } from '../services/room.service';
 import { COLORS, SIZES, SPACING, SHADOWS } from "../../../constaints/hotelTheme";
@@ -28,7 +28,7 @@ interface Room {
   name: string;
   image: string;
   size: string;
-  amenities?: string[]; // Added amenities for future use
+  amenities?: string[];
   bed: string;
   view: string;
   price: number;
@@ -44,7 +44,6 @@ interface SearchScreenProps {
 }
 
 const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavigate }) => {
-  // debug: ensure we see the incoming user prop and route params
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
   console.log('SearchScreen props.user:', user, 'route.params.currentUser:', route?.params?.currentUser);
@@ -52,14 +51,11 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
    const routeCurrentUser = route?.params?.currentUser;
    const routeOnNavigate = route?.params?.onNavigate;
 
-  // Safe runtime API URL (fallback for Android emulator)
   const API_URL = (Config && Config.API_URL) ? Config.API_URL : 'http://10.0.2.2:3000';
 
   const [bookingList, setBookingList] = useState<any[]>([]);
-  // fallback mock user if you want, but linkWallet will require a real user
   const mockUser: User = { userID: '1', name: 'Guest User', email: 'guest@example.com' };
   const currentUser = user || routeCurrentUser || null;
-  // Lấy todayStr local
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const yyyy = today.getFullYear();
@@ -81,7 +77,6 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
   // Hàm xử lý tìm phòng
   const linkWallet = async () => {
     try {
-      // resolve user at call time (in case props/route changed)
       const cu = user || routeCurrentUser || null;
       if (!cu) {
         Alert.alert("Lỗi", "Vui lòng đăng nhập để liên kết ví");
@@ -121,7 +116,6 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
     }
   };
   const handleSearchRoom = async () => {
-    // Validate ngày
     if (!checkIn || !checkOut) {
       Alert.alert("Lỗi", "Vui lòng chọn ngày nhận và trả phòng");
       return;
@@ -145,17 +139,13 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
       }));
       setBookingList(mapped);
 
-      // Filter rooms: only show rooms that have NO bookings overlapping with selected range
-      // Assume each room has a bookings: { checkIn: string, checkOut: string }[]
       const checkInTime = new Date(checkInDate).getTime();
       const checkOutTime = new Date(checkOutDate).getTime();
       const availableRecommendedRooms = rooms.filter((room: any) => {
         if (!room.bookings || !Array.isArray(room.bookings) || room.bookings.length === 0) return true;
-        // If any booking overlaps, room is not available
         return !room.bookings.some((b: any) => {
           const bIn = new Date(b.checkIn).getTime();
           const bOut = new Date(b.checkOut).getTime();
-          // Overlap if: (bIn < checkOut) && (bOut > checkIn)
           return bIn < checkOutTime && bOut > checkInTime;
         });
       });
@@ -207,7 +197,6 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
     console.log("Rooms fetched:", rooms.length);
   }
 
-  // Only filter recommendedRooms after search
   const filteredRooms: Room[] = recommendedRooms.length > 0 ? recommendedRooms.filter((r) => {
     let matchCapacity = true;
     if (capacity !== "none") {
@@ -229,15 +218,16 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
     return matchCapacity && matchName && matchPrice;
   }) : [];
 
-  // Handle room selection: chuyển sang BookingScreen
   const handleSelectRoom = (room: Room) => {
     navigation.navigate('Booking', {
       room,
       searchData: { capacity },
+      onBookingSuccess: () => setRecommendedRooms([]), 
+      checkIn: checkIn.toISOString().split("T")[0],
+      checkOut: checkOut.toISOString().split("T")[0],
     });
   };
 
-  // Test API call (used by Test API button)
   const testApi = async () => {
     try {
       console.log('Testing API at', API_URL);
@@ -266,28 +256,11 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
           <AppText variant="body" color={COLORS.primaryLight} style={{ marginTop: SPACING.sm }}>
             Welcome, {currentUser?.name ?? "Guest"}
           </AppText>
-          <View style={styles.buttonRow}>
-            <AppButton
-              title="Check-In"
-              onPress={() => navigation.navigate('CheckIn')}
-              style={[styles.reloadButton, { flex: 1 }]}
-            />
-            <AppButton
-              title="Check-Out"
-              onPress={() => navigation.navigate('CheckOut')}
-              style={[styles.historyButton, { flex: 1 }]}
-            />
-          </View>
           <View style={[styles.buttonRow, { marginTop: SPACING.md }]}>
             <AppButton
               title="Reload Room"
               onPress={fetchRooms}
               style={styles.reloadButton}
-            />
-            <AppButton
-              title="View History"
-              onPress={() => navigation.navigate('History')}
-              style={styles.historyButton}
             />
             <AppButton
               title="Link momo"

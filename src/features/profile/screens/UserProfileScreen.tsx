@@ -178,8 +178,6 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ user, onLogout })
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.screenBackGround,
-    paddingBottom: SIZES.padding * 3
   },
   headerContainer: {
     alignItems: 'center',

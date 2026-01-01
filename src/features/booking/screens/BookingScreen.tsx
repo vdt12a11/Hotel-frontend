@@ -10,6 +10,7 @@ import {
   Alert
 } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import { useRoute } from "@react-navigation/native";
 import Config from "react-native-config";
 import { calculateNights } from "../../../utils/calculateNights";
 import { COLORS, SIZES, SPACING, SHADOWS } from "../../../constaints/hotelTheme";
@@ -22,12 +23,25 @@ interface BookingScreenProps {
   onConfirm: (booking: BookingData) => void;
   onBack: () => void;
   userID?: string; // Add userID as optional prop
+  onBookingSuccess?: () => void; // Callback khi booking thành công
 }
 
-const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfirm, onBack, userID }) => {
+const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfirm, onBack, userID, onBookingSuccess }) => {
+  const route = useRoute<any>();
+  const routeCheckIn = route?.params?.checkIn;
+  const routeCheckOut = route?.params?.checkOut;
+
+  const parseDate = (dateStr: string): Date => {
+    const date = new Date(dateStr);
+    return date;
+  };
+
   const [name, setName] = useState<string>("");
-  const [checkIn, setCheckIn] = useState<Date>(new Date());
+  const [checkIn, setCheckIn] = useState<Date>(routeCheckIn ? parseDate(routeCheckIn) : new Date());
   const [checkOut, setCheckOut] = useState<Date>(() => {
+    if (routeCheckOut) {
+      return parseDate(routeCheckOut);
+    }
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     return tomorrow;
@@ -69,7 +83,7 @@ const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfi
       return;
     }
     if (!phone || !email || !name) {
-      Alert.alert("Thiếu thông tin", "Vui lòng nhập đủ số điện thoại và email vaf tên!");
+      Alert.alert("Thiếu thông tin", "Vui lòng nhập đủ số điện thoại và email và tên!");
       return;
     }
     if (!isValidEmail(email)) {
@@ -95,6 +109,10 @@ const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfi
       });
       const data = await res.json();
       if (res.ok) {
+        // Gọi callback reset list trước khi navigate
+        if (onBookingSuccess) {
+          onBookingSuccess();
+        }
         onConfirm({
           room,
           formData: { name, phone, email, checkIn: strCheckIn, checkOut: strCheckOut },
@@ -135,7 +153,7 @@ const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfi
               {capacityPreview} adults
             </AppText>
             <AppText variant="subtitle" color={COLORS.primary} style={{ fontWeight: "bold" }}>
-              ${totalPricePreview}
+              ${room.price}
               <AppText variant="caption" color={COLORS.textLight} style={{ fontWeight: "400" }}>
                 /night
               </AppText>
@@ -202,6 +220,15 @@ const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfi
               minimumDate={checkIn}
             />
           )}
+
+          <View>
+            <AppText variant="body" color={COLORS.textLight}>
+              Tổng tiền
+            </AppText>
+            <AppText variant="title" color={COLORS.primary} style={{ fontWeight: "bold" }}>
+              ${totalPricePreview}
+            </AppText>
+          </View>
 
           <View style={styles.buttonGroup}>
             <AppButton
