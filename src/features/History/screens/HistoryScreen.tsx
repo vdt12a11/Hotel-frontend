@@ -67,8 +67,8 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
       const sortedData = (data as BookingRecord[]).sort((a, b) => {
         const dateA = new Date(a.createdAt).getTime();
         const dateB = new Date(b.createdAt).getTime();
-        return dateB - dateA; // Giảm dần (mới nhất lên trước)
-      });
+        return dateA - dateB; // Tăng dần rồi reverse để mới nhất ở đầu
+      }).reverse();
       setHistory(sortedData);
     } catch (error) {
       console.log('Lỗi lấy lịch sử:', error);
@@ -158,6 +158,14 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
             next.add(selectedBookingId);
             return next;
           });
+          // Cập nhật trạng thái trong danh sách
+          setHistory(prev => 
+            prev.map(booking => 
+              booking._id === selectedBookingId 
+                ? { ...booking, status: 'checked_in' }
+                : booking
+            )
+          );
           console.log('Check-in confirmed for', selectedBookingId);
         }
       } else {
@@ -171,6 +179,14 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
             next.delete(selectedBookingId);
             return next;
           });
+          // Cập nhật trạng thái trong danh sách
+          setHistory(prev => 
+            prev.map(booking => 
+              booking._id === selectedBookingId 
+                ? { ...booking, status: 'checked_out' }
+                : booking
+            )
+          );
           console.log('Check-out confirmed for', selectedBookingId);
         }
       }
@@ -219,7 +235,8 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
       today <= checkOutDate;
     
     const isPending = item.status?.toLowerCase() === 'pending';
-    const shouldShowButtons = isWithinBookingDates && !isPending;
+    const isCheckedOut = item.status?.toLowerCase() === 'checked_out';
+    const shouldShowButtons = isWithinBookingDates && !isPending && !isCheckedOut;
 
     return (
     <View style={[styles.card, { ...SHADOWS.medium }]}> 
@@ -404,7 +421,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <AppText variant="title" color={COLORS.textDark} style={{ marginBottom: SPACING.lg }}>
-              Xác nhận đặt phòng
+              {modalAction === 'checkin' ? 'Xác nhận đặt phòng' : 'Xác nhận trả phòng'}
             </AppText>
             <AppText
               variant="body"
