@@ -143,6 +143,11 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
     setIsCheckInModalVisible(true);
   };
 
+  const handlePendingAction = (bookingId: string) => {
+    console.log('Pending action pressed for', bookingId);
+    Alert.alert('Thanh toán', 'Đơn này đang chờ thanh toán. Vui lòng hoàn tất thanh toán để xác nhận.');
+  };
+
   const handleConfirmModal = async () => {
     if (!selectedBookingId) return;
 
@@ -213,6 +218,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
   const renderItem = ({ item }: { item: BookingRecord }) => {
     const isCheckedIn = checkedInBookings.has(item._id);
     const canCheckOut = isCheckedIn;
+    const isPending = item.status?.toLowerCase() === 'pending';
     console.log("item id",item._id);
     // Check if today is within check-in and check-out dates
     const today = new Date();
@@ -234,7 +240,6 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
       today >= checkInDate && 
       today <= checkOutDate;
     
-    const isPending = item.status?.toLowerCase() === 'pending';
     const isCheckedOut = item.status?.toLowerCase() === 'checked_out';
     const shouldShowButtons = isWithinBookingDates && !isPending && !isCheckedOut;
 
@@ -252,14 +257,24 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
             {item.room?.name || 'No name'}
           </AppText>
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusBgColor(item.status) }]}> 
-          <AppText 
-            variant="body" 
-            color={getStatusColor(item.status)} 
-            style={styles.statusText}
-          >
-            {item.status}
-          </AppText>
+        <View style={styles.statusWrapper}>
+          <View style={[styles.statusBadge, { backgroundColor: getStatusBgColor(item.status) }]}> 
+            <AppText 
+              variant="body" 
+              color={getStatusColor(item.status)} 
+              style={styles.statusText}
+            >
+              {item.status}
+            </AppText>
+          </View>
+          {isPending && (
+            <AppButton
+              title="Thanh toán"
+              onPress={() => handlePendingAction(item._id)}
+              style={styles.pendingActionButton}
+              textStyle={[styles.pendingActionText, { color: COLORS.white }]}
+            />
+          )}
         </View>
       </View>
 
@@ -548,6 +563,11 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
     gap: SPACING.md,
   },
+  statusWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+  },
   roomName: {
     fontWeight: '700',
     fontSize: SIZES.h4,
@@ -560,6 +580,17 @@ const styles = StyleSheet.create({
   statusText: {
     fontWeight: '600',
     fontSize: SIZES.body4,
+  },
+  pendingActionButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: SIZES.radiusSmall,
+    paddingHorizontal: SPACING.xs,
+    paddingVertical: 0,
+    minWidth: 64,
+    minHeight: 30,
+  },
+  pendingActionText: {
+    fontWeight: '700',
   },
   infoSection: {
     borderTopWidth: 1,
