@@ -101,29 +101,11 @@ const BookingScreen: React.FC<BookingScreenProps> = ({ room, searchData, onConfi
       userID: userID || "guest",
       date: new Date().toISOString()
     };
-    try {
-      const res = await fetch(`${Config.API_URL}/booking`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bookingData)
-      });
-      const data = await res.json();
-      if (res.ok) {
-        // Gọi callback reset list trước khi navigate
-        if (onBookingSuccess) {
-          onBookingSuccess();
-        }
-        onConfirm({
-          room,
-          formData: { name, phone, email, checkIn: strCheckIn, checkOut: strCheckOut },
-          totalPrice: nights * room.price
-        });
-      } else {
-        Alert.alert("Lỗi", data.message || "Đặt phòng thất bại");
-      }
-    } catch (err) {
-      Alert.alert("Lỗi", "Không thể kết nối tới máy chủ");
+    // Gọi callback reset list trước khi navigate
+    if (onBookingSuccess) {
+      onBookingSuccess();
     }
+    onConfirm(bookingData);
   };
 
   const strCheckIn = formatDate(checkIn);

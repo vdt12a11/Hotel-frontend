@@ -6,6 +6,7 @@ import AppButton from "../../../shared/components/AppButton";
 import Icon from 'react-native-vector-icons/Ionicons';
 import { COLORS, SIZES, SPACING, SHADOWS } from '../../../constaints/hotelTheme';
 import Config from 'react-native-config';
+import { Linking } from 'react-native';
 interface User {
   userID: string;
   name: string;
@@ -26,11 +27,13 @@ interface FormData {
 
 interface BookingRecord {
   _id: string;
+  deeplink: string;
   room: Room;
   formData: FormData;
   createdAt: string;
   status: string;
   totalPrice?: number;
+  orderId:string;
 }
 
 interface HistoryScreenProps {
@@ -59,6 +62,8 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
       setLoading(true);
       const res = await fetch(`${Config.API_URL}/history/${user.userID}`);
       const data = await res.json();
+
+      console.log(data);
       if (!res.ok) {
         throw new Error((data as { message?: string }).message || 'Get history failed');
       }
@@ -143,9 +148,88 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
     setIsCheckInModalVisible(true);
   };
 
-  const handlePendingAction = (bookingId: string) => {
-    console.log('Pending action pressed for', bookingId);
-    Alert.alert('Thanh toán', 'Đơn này đang chờ thanh toán. Vui lòng hoàn tất thanh toán để xác nhận.');
+  const handlePendingAction = async (bookingId: string, url?: string) => {
+    console.log('Pending action pressed for', bookingId, url);
+    if (!bookingId) {
+      Alert.alert('Lỗi', 'Booking ID không hợp lệ.');
+      return;
+    }
+
+    if (!url) {
+      Alert.alert('Lỗi', 'Liên kết không hợp lệ.');
+      return;
+    }
+
+    Alert.alert(
+      'Thanh toán',
+      'Đơn này đang chờ thanh toán. Bạn có muốn mở liên kết thanh toán bây giờ?',
+      [
+        { text: 'Hủy', style: 'cancel' },
+        { text: 'Mở liên kết', onPress: async () => {
+            try {
+              Linking.openURL(url);
+            } catch (error) {
+              console.log('Error opening URL', error);
+              Alert.alert('Lỗi', 'Có lỗi khi mở liên kết.');
+              return;
+            }
+
+            // Start polling booking status until it becomes 'booked' or times out
+            let attempts = 0;
+            const maxAttempts = 24; // 24 attempts * 5s = 2 minutes
+            const intervalMs = 5000;
+            let cancelled = false;
+            const intervalId = setInterval(async () => {
+              if (cancelled) {
+                clearInterval(intervalId);
+                return;
+              }
+              attempts++;
+              try {
+                const res = await fetch(`${Config.API_URL}/payment/status/${bookingId}`);
+                const contentType = res.headers.get("content-type");
+
+                if (res.ok && contentType && contentType.includes("application/json")) {
+                  const data = await res.json();
+                  const status = (data as any).status;
+                  if (status && status.toLowerCase() === 'booked') {
+                    clearInterval(intervalId);
+                    setHistory(prev =>
+                      prev.map(b => b.orderId === bookingId ? { ...b, status: 'booked' } : b)
+                    );
+                    Alert.alert('Thanh toán hoàn tất', 'Đơn hàng đã được đặt. Bạn có thể check-in/check-out.');
+                    return;
+                  }
+                } else {
+                  const textResponse = await res.text();
+                  console.log('Polling fetch failed or returned non-JSON.', {
+                    status: res.status,
+                    body: textResponse,
+                  });
+                }
+              } catch (err) {
+                console.log('Polling error', err);
+              }
+
+              if (attempts >= maxAttempts) {
+                clearInterval(intervalId);
+                Alert.alert('Hết thời gian chờ', 'Không nhận được cập nhật trạng thái. Vui lòng kiểm tra lại sau.');
+              }
+            }, intervalMs);
+
+            // Offer the user a way to cancel waiting
+            // Alert.alert(
+            //   'Đang chờ xác nhận',
+            //   'Ứng dụng sẽ tiếp tục kiểm tra trạng thái đơn hàng trong nền. Bạn có thể huỷ chờ nếu muốn.',
+            //   [
+            //     { text: 'Đóng', style: 'cancel' },
+            //     { text: 'Huỷ chờ', style: 'destructive', onPress: () => { cancelled = true; clearInterval(intervalId); } }
+            //   ],
+            // );
+          }
+        }
+      ]
+    );
   };
 
   const handleConfirmModal = async () => {
@@ -215,7 +299,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
     setIsCheckInModalVisible(true);
   };
 
-  const renderItem = ({ item }: { item: BookingRecord }) => {
+  const renderItem = React.useCallback(({ item }: { item: BookingRecord }) => {
     const isCheckedIn = checkedInBookings.has(item._id);
     const canCheckOut = isCheckedIn;
     const isPending = item.status?.toLowerCase() === 'pending';
@@ -270,7 +354,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
           {isPending && (
             <AppButton
               title="Thanh toán"
-              onPress={() => handlePendingAction(item._id)}
+              onPress={() => handlePendingAction(item.orderId, item.deeplink)}
               style={styles.pendingActionButton}
               textStyle={[styles.pendingActionText, { color: COLORS.white }]}
             />
@@ -391,7 +475,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ user }) => {
       )}
     </View>
     );
-  };
+  }, [checkedInBookings, handlePendingAction, getStatusBgColor, getStatusColor, formatDate, handleCheckIn, handleCheckOut]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: COLORS.background }]}>
