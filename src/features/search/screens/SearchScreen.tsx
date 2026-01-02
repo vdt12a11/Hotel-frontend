@@ -130,7 +130,9 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
       const checkInDate = checkIn.toISOString().split("T")[0];
       const checkOutDate = checkOut.toISOString().split("T")[0];
       const rooms = await getAvailableRooms(checkInDate, checkOutDate);
-      const mapped = rooms.map((room: Room, idx: number) => ({
+      const resUpcoming = await fetch(`${Config.API_URL}/history/upcoming/${user?.userID}`);
+      const dataUpcoming = await resUpcoming.json();
+      const mapped = dataUpcoming.map((room: any, idx: number) => ({
         id: room._id || String(idx),
         name: room.name || "No name",
         image: room.image || "https://via.placeholder.com/80",
@@ -170,20 +172,22 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ user, onSelectRoom, onNavig
     try {
       const res = await fetch(`${Config.API_URL}/room`);
       const data = await res.json();
+      // const resUpcoming = await fetch(`${Config.API_URL}/history/upcoming/${user?.userID}`);
+      // const dataUpcoming = await resUpcoming.json();
       if (!res.ok) {
         Alert.alert("Lỗi", (data as { message?: string }).message || `Lấy phòng thất bại`);
         return;
       }
       setRooms(data as Room[]);
-      setBookingList(
-        (data as Room[]).map((room, idx) => ({
-          id: room._id || String(idx),
-          hotelName: room.name,
-          image: room.image,
-          date: "",
-          status: "available",
-        }))
-      );
+      // setBookingList(
+      //   (dataUpcoming as any[]).map((room: any, idx) => ({
+      //     id: room._id || String(idx),
+      //     hotelName: room.room.name,
+      //     image: room.room.image,
+      //     date: room.formData.checkIn,
+      //     //status: "available",
+      //   }))
+      // );
     } catch (err) {
       console.log("Error fetching rooms:", err);
     }

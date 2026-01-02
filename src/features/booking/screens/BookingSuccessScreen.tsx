@@ -1,10 +1,11 @@
 
 import React, { useEffect, useRef, useState } from "react";
-import { View, StyleSheet, SafeAreaView, ScrollView, ActivityIndicator } from "react-native";
+import { View, StyleSheet, SafeAreaView, ScrollView, ActivityIndicator, Alert } from "react-native";
 import { calculateNights } from "../../../utils/calculateNights";
 import { COLORS, SIZES, SPACING } from "../../../constaints/hotelTheme";
 import { AppButton, AppText } from "../../../shared/components";
 import Config from "react-native-config";
+import { Linking } from "react-native";
 interface Room {
   name: string;
   price: number;
@@ -54,6 +55,32 @@ const BookingSuccessScreen: React.FC<BookingSuccessScreenProps> = ({ booking, on
     console.log("booking Id",bookingId);
     const data = await res.json();
     setPaymentStatus(data.status); // status: 'pending' | 'success' | 'failed'
+
+    // Nếu server trả về deeplink, hỏi người dùng trước khi mở app bên ngoài
+    if (data.deeplink) {
+      const openExternal = async () => {
+        // try {
+        //   const supported = await Linking.canOpenURL(data.deeplink);
+        //   if (supported) {
+            Linking.openURL(data.deeplink);
+        //   } else {
+        //     console.warn("Deeplink không được hỗ trợ:", data.deeplink);
+        //   }
+        // } catch (err) {
+        //   console.warn("Lỗi khi mở deeplink:", err);
+        // }
+      };
+
+      Alert.alert(
+        "Mở ứng dụng bên ngoài?",
+        "Luồng thanh toán cần mở ứng dụng bên ngoài để tiếp tục. Bạn có muốn tiếp tục không?",
+        [
+          { text: "Hủy", style: "cancel" },
+          { text: "Mở", onPress: openExternal }
+        ],
+        { cancelable: true }
+      );
+    }
 
     // Mock API: random trạng thái sau 2 lần polling
     // Xoá đoạn này khi dùng API thật
